@@ -1,0 +1,8 @@
+# exclude all object file
+*.o
+# exclude all file in irssi
+irssi/
+# exclude all .txt files
+*.txt
+# exclude webserver
+ft_irc
