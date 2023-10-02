@@ -13,11 +13,13 @@ int	server_fd = -1;
 /* ------------------------ initiate the server ------------------------ */
 void	server_init(int port) {
 
+	std::cout << "listen on port " << port << std::endl;
 	/* create a socket (IPV4, TCP) */
 	server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (-1 == server_fd)
 		throw std::runtime_error("failed to create a socket");
 
+	/* remove the binding error */
 	int	opt = 1;
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int)) < 0)
 		throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
@@ -34,11 +36,11 @@ void	server_init(int port) {
 
 	/* start listening and set the number of possible connections */
 	if (listen(server_fd, MAX_CONNECTION) < 0)
-		throw std::runtime_error("failed to listen on socket");	
+		throw std::runtime_error("failed to listen on socket");
 }
 
 /* -------------------------- Accept-Client ---------------------------- */
-void	acceptClient() {
+void	acceptClient(void) {
 
 	int					client_fd = -1;
 	struct sockaddr_in	client_addr;
@@ -57,8 +59,6 @@ void	acceptClient() {
 		std::cerr << "error: allocation failed" << std::endl;
 		return ;
 	}
-
-	*arg = client_fd;
 
 	/* create the thread to handle client request */
 	pthread_t	thrID;
@@ -101,3 +101,9 @@ int	main(int ac, char *av[])
 	close(server_fd);
 	return 0;
 }
+
+/*
+	Usage: You can try to connect with the telnet command
+		-> "telnet <host> <port>"
+		-> "telnet localhost 9999"
+*/
