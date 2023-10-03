@@ -1,12 +1,9 @@
 // main.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 2-oct-2023
+// Date: 3-oct-2023
 
 #include "irc.hpp"
-
-/* [ "https://ncona.com/2019/04/building-a-simple-server-with-cpp/" ] */
-/* [ "https://github.com/irssi/irssi" ] */
 
 int	server_fd = -1;
 
@@ -25,11 +22,10 @@ void	server_init(int port) {
 		throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
 
 	/* binding to the port */
-	/* ["https://learn.microsoft.com/en-us/windows/win32/api/ws2def/ns-ws2def-sockaddr_in"] */
 	sockaddr_in	sockaddr;
 	sockaddr.sin_family = AF_INET;
 	sockaddr.sin_addr.s_addr = INADDR_ANY;
-	sockaddr.sin_port = htons(port); /* htons convert number to network byte order */
+	sockaddr.sin_port = htons(port); // htons convert number to network byte order
 
 	if (bind(server_fd, (struct sockaddr *)&sockaddr, sizeof(sockaddr)) < 0)
 		throw std::runtime_error("failed during binding");
@@ -40,7 +36,7 @@ void	server_init(int port) {
 }
 
 /* -------------------------- Accept-Client ---------------------------- */
-void	acceptClient(void) {
+void	acceptClient(std::string const &password) {
 
 	int					client_fd = -1;
 	struct sockaddr_in	client_addr;
@@ -54,7 +50,7 @@ void	acceptClient(void) {
 
 	/* create the argument for the thread */
 	Client	*arg = NULL;
-	if (!(arg = new Client(client_fd))) {
+	if (!(arg = new Client(client_fd, password))) {
 		close(client_fd);
 		std::cerr << "error: allocation failed" << std::endl;
 		return ;
@@ -64,6 +60,7 @@ void	acceptClient(void) {
 	pthread_t	thrID;
 	pthread_create(&thrID, NULL, handle_client, (void *)arg);
 	pthread_detach(thrID);
+	std::cout << "client " << client_fd << ": is connected to the server" << std::endl;
 }
 
 /* ------------------------------- main -------------------------------- */
@@ -96,14 +93,14 @@ int	main(int ac, char *av[])
 
 	/* wait for client */
 	while (1)
-		acceptClient();
+		acceptClient(av[2]);
 
 	close(server_fd);
 	return 0;
 }
 
-/*
-	Usage: You can try to connect with the telnet command
-		-> "telnet <host> <port>"
-		-> "telnet localhost 9999"
-*/
+/* [ "https://ncona.com/2019/04/building-a-simple-server-with-cpp/" ] */
+/* [ "https://github.com/irssi/irssi" ] */
+/* ["https://learn.microsoft.com/en-us/windows/win32/api/ws2def/ns-ws2def-sockaddr_in"] */
+/* [ "https://www.cs.cmu.edu/~srini/15-441/S10/lectures/r01-sockets.pdf" ] */
+/* [ "https://github.com/bl4de/irc-client/tree/master" ] */

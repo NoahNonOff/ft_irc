@@ -16,6 +16,7 @@
 # include <sys/socket.h>
 # include <cstdlib> /* exit */
 # include <csignal> /* signal */
+# include <string.h> /* strcmp */
 
 /* --------------------- macros -------------------- */
 
@@ -31,12 +32,16 @@
 class Client
 {
 	private:
-		int	_fd;
-	public:
-		Client(int clt_fd) : _fd(clt_fd) {}
-		~Client() { close(_fd); }
+		int const 			_fd;
+		std::string	const	_password;
+		std::string			_username;
 
-		int const &getFd(void) const { return _fd; }
+	public:
+		Client(int, std::string const &);
+		~Client();
+
+		int const &getFd(void) const;
+		std::string const &getPassword(void) const;
 };
 
 /* ------------------- prototype ------------------- */
@@ -45,5 +50,3 @@ int		_stoi(std::string const &str);
 void	*handle_client(void *arg);
 
 #endif
-
-/* [ "for (char c : chaine)" ] */
