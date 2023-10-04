@@ -14,7 +14,7 @@ bool	secure_connection(Client *client) {
 
 		char		buffer[BUFFER_SIZE] = {0};
 		send(client->getFd(), question.c_str(), question.size(), 0);
-		ssize_t	bytes = read(client->getFd(), buffer, BUFFER_SIZE);
+		ssize_t	bytes = recv(client->getFd(), buffer, BUFFER_SIZE, 0);
 		buffer[bytes - 2] = 0;
 
 		std::string answer = buffer;

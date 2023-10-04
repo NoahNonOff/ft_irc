@@ -1,12 +1,12 @@
 # Makefile
 #
 # Author: Noah BEAUFILS
-# Date: 3-oct-2023
+# Date: 4-oct-2023
 
 SRC =	main.cpp			\
 		lib.cpp				\
 		client.cpp			\
-		handle_client.cpp
+		server.cpp
 
 OBJ = $(SRC:.cpp=.o)
 CC = c++

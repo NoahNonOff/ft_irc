@@ -1,7 +1,7 @@
 // irc.hpp
 //
 // Author: Noah BEAUFILS
-// Date: 2-oct-2023
+// Date: 4-oct-2023
 
 #ifndef IRC_HPP
 # define IRC_HPP
@@ -17,6 +17,7 @@
 # include <cstdlib> /* exit */
 # include <csignal> /* signal */
 # include <string.h> /* strcmp */
+# include <map>
 
 /* --------------------- macros -------------------- */
 
@@ -37,16 +38,31 @@ class Client
 		std::string			_username;
 
 	public:
-		Client(int, std::string const &);
+		Client( int, std::string const & );
 		~Client();
 
-		int const &getFd(void) const;
-		std::string const &getPassword(void) const;
+		int const &getFd( void ) const;
+		std::string const &getPassword( void ) const;
+};
+
+class Server
+{
+	private:
+		std::string const		_password;
+		int						_fd;
+		struct sockaddr_in		_sockAddr;
+		std::map<int, Client *>	_clients;
+
+	public:
+		Server( int, std::string const & );
+		~Server();
+
+		int const &getFd( void ) const;
+		std::map<int, Client *> const &getClients( void ) const;
 };
 
 /* ------------------- prototype ------------------- */
 
-int		_stoi(std::string const &str);
-void	*handle_client(void *arg);
+int		_stoi( std::string const & );
 
 #endif

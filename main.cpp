@@ -1,74 +1,27 @@
 // main.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 3-oct-2023
+// Date: 4-oct-2023
 
 #include "irc.hpp"
 
-int	server_fd = -1;
+Server *server;
 
-/* ------------------------ initiate the server ------------------------ */
-void	server_init(int port) {
+/* ---------------------------- Main-loop ------------------------------ */
+void	main_loop(void) {
 
-	std::cout << "listen on port " << port << std::endl;
-	/* create a socket (IPV4, TCP) */
-	server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (-1 == server_fd)
-		throw std::runtime_error("failed to create a socket");
-
-	/* remove the binding error */
-	int	opt = 1;
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int)) < 0)
-		throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
-
-	/* binding to the port */
-	sockaddr_in	sockaddr;
-	sockaddr.sin_family = AF_INET;
-	sockaddr.sin_addr.s_addr = INADDR_ANY;
-	sockaddr.sin_port = htons(port); // htons convert number to network byte order
-
-	if (bind(server_fd, (struct sockaddr *)&sockaddr, sizeof(sockaddr)) < 0)
-		throw std::runtime_error("failed during binding");
-
-	/* start listening and set the number of possible connections */
-	if (listen(server_fd, MAX_CONNECTION) < 0)
-		throw std::runtime_error("failed to listen on socket");
-}
-
-/* -------------------------- Accept-Client ---------------------------- */
-void	acceptClient(std::string const &password) {
-
-	int					client_fd = -1;
-	struct sockaddr_in	client_addr;
-	socklen_t			addr_len = sizeof(client_addr);
-
-	/* accept the client connection */
-	if ((client_fd = accept((server_fd), (struct sockaddr *)&client_addr, &addr_len)) < 0) {
-		std::cerr << "error: failed during the acceptation" << std::endl;
-		return ;
+	std::cout << "waiting for connections ..." << std::endl;
+	while (1) {
+		// to do
 	}
-
-	/* create the argument for the thread */
-	Client	*arg = NULL;
-	if (!(arg = new Client(client_fd, password))) {
-		close(client_fd);
-		std::cerr << "error: allocation failed" << std::endl;
-		return ;
-	}
-
-	/* create the thread to handle client request */
-	pthread_t	thrID;
-	pthread_create(&thrID, NULL, handle_client, (void *)arg);
-	pthread_detach(thrID);
-	std::cout << "client " << client_fd << ": is connected to the server" << std::endl;
 }
 
 /* ------------------------------- main -------------------------------- */
 void	endProg(int signal) {
 
 	if (signal == SIGINT) {
-		std::cout << "\033[2DServer closed" << std::endl;
-		close(server_fd);
+		std::cout << "\033[2D";
+		delete server;
 		exit (0);
 	}
 }
@@ -79,9 +32,10 @@ int	main(int ac, char *av[])
 		std::cerr << "Usage: " << av[0] << " <port> <password>" << std::endl;
 		return 2;
 	}
+
 	/* initiate the server */
 	try {
-		server_init(_stoi(av[1]));
+		server = new Server(_stoi(av[1]), av[2]);
 	}
 	catch (std::exception &error) {
 		std::cerr << "error: " << error.what() << std::endl;
@@ -92,15 +46,11 @@ int	main(int ac, char *av[])
 	std::signal(SIGINT, &endProg);
 
 	/* wait for client */
-	while (1)
-		acceptClient(av[2]);
+	main_loop();
 
-	close(server_fd);
+	delete server;
 	return 0;
 }
 
-/* [ "https://ncona.com/2019/04/building-a-simple-server-with-cpp/" ] */
-/* [ "https://github.com/irssi/irssi" ] */
-/* ["https://learn.microsoft.com/en-us/windows/win32/api/ws2def/ns-ws2def-sockaddr_in"] */
-/* [ "https://www.cs.cmu.edu/~srini/15-441/S10/lectures/r01-sockets.pdf" ] */
-/* [ "https://github.com/bl4de/irc-client/tree/master" ] */
+/* [ "https://www.geeksforgeeks.org/socket-programming-in-cc-handling-multiple-clients-on-server-without-multi-threading/" ] */
+/* [ "http://vidalc.chez.com/lf/socket.html#lowlevel" ] */

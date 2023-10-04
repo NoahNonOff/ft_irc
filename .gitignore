@@ -2,5 +2,7 @@
 *.o
 # exclude all .txt files
 *.txt
+# exclude test file
+*_test.*
 # exclude webserver
 ft_irc
