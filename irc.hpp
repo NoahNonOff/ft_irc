@@ -23,8 +23,6 @@
 # include <arpa/inet.h>
 # include <netinet/in.h>
 
-# include <string.h>
-
 /* --------------------- macros -------------------- */
 
 # ifndef MAX_WAIT
@@ -33,6 +31,10 @@
 
 # ifndef MAX_CLIENT
 #  define MAX_CLIENT 10
+# endif
+
+# ifndef TRASH_SIZE
+#  define TRASH_SIZE 2 /* [-2: telnet / -1: nc] */
 # endif
 
 # define BUFFER_SIZE 1000
@@ -44,15 +46,14 @@ class Client
 {
 	private:
 		int const 			_fd;
-		std::string	const	_password;
 		std::string			_username;
 
 	public:
-		Client( int, std::string const & );
+		Client( int );
 		~Client();
 
 		int const &getFd( void ) const;
-		std::string const &getPassword( void ) const;
+		std::string const &getUsername( void ) const;
 };
 
 class Server
@@ -70,10 +71,12 @@ class Server
 		~Server();
 
 		int const &getFd( void ) const;
+		std::string const &getPassword( void ) const;
 		std::map<int, Client *> const &getClients( void ) const;
 
-		void	run(void);
-		void	addClient(void);
+		void	run( void );
+		void	addClient( void );
+		void	clientRequest( int sd );
 };
 
 /* ------------------- prototype ------------------- */

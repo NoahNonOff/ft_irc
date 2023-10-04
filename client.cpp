@@ -1,22 +1,21 @@
 // client.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 3-oct-2023
+// Date: 4-oct-2023
 
 #include "irc.hpp"
 
 /* ---------------------------------- Set and Get ---------------------------------- */
 int const	&Client::getFd(void) const { return _fd; }
-std::string const &Client::getPassword(void) const { return _password; };
+std::string const	&Client::getUsername( void ) const { return _username; }
 
 /* ---------------------------------- Coplien's f. ---------------------------------- */
-Client::Client(int const clt_fd, std::string const &password) : _fd(clt_fd), _password(password) {
+Client::Client(int const clt_fd) : _fd(clt_fd) {
 	/* initialize the client */
+	_username = "unnamed_user";
 }
 
 Client::~Client() {
 	/* destroy the client */
 	close(_fd);
 }
-
-/* ----------------------------------- functions ----------------------------------- */

@@ -41,5 +41,8 @@ int	main(int ac, char *av[])
 	return 0;
 }
 
+// sources:
 /* [ "https://www.geeksforgeeks.org/socket-programming-in-cc-handling-multiple-clients-on-server-without-multi-threading/" ] */
+/* [ "https://www.cs.cmu.edu/~srini/15-441/S10/project1/pj1_description.pdf" ] */
 /* [ "http://vidalc.chez.com/lf/socket.html#lowlevel" ] */
+/* [ "https://www.rfc-editor.org/rfc/rfc2812" ] */

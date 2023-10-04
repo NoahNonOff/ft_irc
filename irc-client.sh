@@ -6,7 +6,6 @@
 # Date: 3-oct-2023
 
 binName=ft_irc
-pid=`pidof $binName`
 
 if [ $# -eq 2 ]; then
 	host=$1

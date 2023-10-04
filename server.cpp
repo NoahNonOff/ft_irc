@@ -7,6 +7,7 @@
 
 /* ---------------------------------- Set and Get ---------------------------------- */
 int const &Server::getFd( void ) const { return _fd; }
+std::string const &Server::getPassword(void) const { return _password; };
 std::map<int, Client *> const &Server::getClients( void ) const { return _clients; }
 
 /* ---------------------------------- Coplien's f. ---------------------------------- */
@@ -54,7 +55,6 @@ Server::~Server() {
 void	Server::run(void) {
 
 	int		max_sd, activity;
-	int		client_socket[MAX_CLIENT] = { 0 };
 
 	std::cout << "waiting for connections ..." << std::endl;
 	while (1) {
@@ -64,14 +64,15 @@ void	Server::run(void) {
 		max_sd = this->_fd;
 
 		/* add all client ID to socket_set */
-		for (int i = 0; i < MAX_CLIENT; i++) {
+		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 
-			int	sd = client_socket[i];
+			int	sd = it->second->getFd();
 			if (sd > 0)
 				FD_SET(sd, &this->_readfds);
 			if (sd > max_sd)
 				max_sd = sd;
 		}
+
 		activity = select(max_sd + 1, &this->_readfds, NULL, NULL, NULL);
 		if (activity < 0 && errno != EINTR)
 			throw std::runtime_error("select failed");
@@ -81,24 +82,31 @@ void	Server::run(void) {
 			this->addClient();
 
 		/* I/O operation from client */
-		for (int i = 0; i < MAX_CLIENT; i++) {
-			int	sd = client_socket[i];
+		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+			int	sd = it->first;
 
-			if (FD_ISSET(sd, &_readfds)) {
-				ssize_t	b_read = -1;
-				char	buff[BUFFER_SIZE] = {0};
-
-				b_read = recv(sd, buff, 100, 0);
-				if (b_read < 1) {
-
-					// close the client socket
-					close(sd);
-					client_socket[i] = 0;
-				}
-				else
-					std::cout << "{" << buff << "}" << std::endl;
-			}
+			if (FD_ISSET(sd, &_readfds))
+				this->clientRequest(sd);
 		}
+	}
+}
+
+void	Server::clientRequest(int sd) {
+
+	ssize_t	b_read = -1;
+	char	buff[BUFFER_SIZE] = {0};
+
+	b_read = recv(sd, buff, BUFFER_SIZE, 0);
+
+	/* destroy the client */
+	if (b_read < 1) {
+		delete _clients.find(sd)->second;
+		_clients.erase(_clients.find(sd));
+	}
+	else {
+		buff[b_read - TRASH_SIZE] = 0; // remove the gliberish ('\n', '\r', ...)
+		std::string	msg = buff;
+		std::cout << _clients.find(sd)->second->getUsername() << ": {" << msg << "}" << std::endl;
 	}
 }
 
@@ -114,10 +122,5 @@ void	Server::addClient(void) {
 		throw std::runtime_error("failed during acceptation");
 
 	/* add the new socket to the socket_set */
-	for (int i = 0; i < MAX_CLIENT; i++) {
-		if (client_socket[i] == 0) {
-			client_socket[i] = new_socket;
-			break ;
-		}
-	}
+	this->_clients[new_socket] = new Client(new_socket);
 }
