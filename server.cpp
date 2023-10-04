@@ -13,7 +13,7 @@ std::map<int, Client *> const &Server::getClients( void ) const { return _client
 Server::Server(int port, std::string const &password) : _password(password) {
 
 	/* create a socket (IPV4, TCP) */
-	this->_fd = socket(AF_INET, SOCK_STREAM, 0);
+	this->_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 	if (-1 == this->_fd)
 		throw std::runtime_error("failed to create a socket");
 
@@ -30,7 +30,7 @@ Server::Server(int port, std::string const &password) : _password(password) {
 	if (bind(this->_fd, (struct sockaddr *)&this->_sockAddr, sizeof(sockaddr)) < 0)
 		throw std::runtime_error("failed during binding");
 
-	if (listen(this->_fd, MAX_CONNECTION) < 0)
+	if (listen(this->_fd, MAX_WAIT) < 0)
 		throw std::runtime_error("failed to listen on socket");
 
 	std::cout << "listen on port " << port << std::endl;
@@ -50,3 +50,74 @@ Server::~Server() {
 }
 
 /* ----------------------------------- functions ----------------------------------- */
+
+void	Server::run(void) {
+
+	int		max_sd, activity;
+	int		client_socket[MAX_CLIENT] = { 0 };
+
+	std::cout << "waiting for connections ..." << std::endl;
+	while (1) {
+
+		FD_ZERO(&this->_readfds); // clear socket_set
+		FD_SET(this->_fd, &this->_readfds); // add server ID to socket_set
+		max_sd = this->_fd;
+
+		/* add all client ID to socket_set */
+		for (int i = 0; i < MAX_CLIENT; i++) {
+
+			int	sd = client_socket[i];
+			if (sd > 0)
+				FD_SET(sd, &this->_readfds);
+			if (sd > max_sd)
+				max_sd = sd;
+		}
+		activity = select(max_sd + 1, &this->_readfds, NULL, NULL, NULL);
+		if (activity < 0 && errno != EINTR)
+			throw std::runtime_error("select failed");
+
+		/* incoming connection */
+		if (FD_ISSET(this->_fd, &this->_readfds))
+			this->addClient();
+
+		/* I/O operation from client */
+		for (int i = 0; i < MAX_CLIENT; i++) {
+			int	sd = client_socket[i];
+
+			if (FD_ISSET(sd, &_readfds)) {
+				ssize_t	b_read = -1;
+				char	buff[BUFFER_SIZE] = {0};
+
+				b_read = recv(sd, buff, 100, 0);
+				if (b_read < 1) {
+
+					// close the client socket
+					close(sd);
+					client_socket[i] = 0;
+				}
+				else
+					std::cout << "{" << buff << "}" << std::endl;
+			}
+		}
+	}
+}
+
+void	Server::addClient(void) {
+
+	std::cout << "someone wants to connect to the server" << std::endl;
+
+	/* accept the client */
+	socklen_t	addr_len = sizeof(_sockAddr);
+	int	new_socket = accept(_fd, (struct sockaddr *)&_sockAddr, &addr_len);
+
+	if (new_socket < 0)
+		throw std::runtime_error("failed during acceptation");
+
+	/* add the new socket to the socket_set */
+	for (int i = 0; i < MAX_CLIENT; i++) {
+		if (client_socket[i] == 0) {
+			client_socket[i] = new_socket;
+			break ;
+		}
+	}
+}

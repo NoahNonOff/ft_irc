@@ -11,18 +11,28 @@
 # include <iostream>
 # include <string>
 # include <exception>
+# include <cstdlib> /* exit */
+# include <csignal> /* signal */
+# include <cerrno> /* errno */
+# include <map>
+
 # include <unistd.h>
 # include <netinet/in.h> /* htons() */
 # include <sys/socket.h>
-# include <cstdlib> /* exit */
-# include <csignal> /* signal */
 # include <string.h> /* strcmp */
-# include <map>
+# include <arpa/inet.h>
+# include <netinet/in.h>
+
+# include <string.h>
 
 /* --------------------- macros -------------------- */
 
-# ifndef MAX_CONNECTION
-#  define MAX_CONNECTION 10
+# ifndef MAX_WAIT
+#  define MAX_WAIT 7
+# endif
+
+# ifndef MAX_CLIENT
+#  define MAX_CLIENT 10
 # endif
 
 # define BUFFER_SIZE 1000
@@ -53,12 +63,17 @@ class Server
 		struct sockaddr_in		_sockAddr;
 		std::map<int, Client *>	_clients;
 
+		fd_set					_readfds;
+
 	public:
 		Server( int, std::string const & );
 		~Server();
 
 		int const &getFd( void ) const;
 		std::map<int, Client *> const &getClients( void ) const;
+
+		void	run(void);
+		void	addClient(void);
 };
 
 /* ------------------- prototype ------------------- */
