@@ -60,6 +60,7 @@ void	Server::run(void) {
 	while (1) {
 
 		FD_ZERO(&this->_readfds); // clear socket_set
+		FD_ZERO(&this->_writefds);
 		FD_SET(this->_fd, &this->_readfds); // add server ID to socket_set
 		max_sd = this->_fd;
 
@@ -67,13 +68,15 @@ void	Server::run(void) {
 		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 
 			int	sd = it->second->getFd();
-			if (sd > 0)
+			if (sd > 0) {
 				FD_SET(sd, &this->_readfds);
+				FD_SET(sd, &this->_writefds);
+			}
 			if (sd > max_sd)
 				max_sd = sd;
 		}
 
-		activity = select(max_sd + 1, &this->_readfds, NULL, NULL, NULL);
+		activity = select(max_sd + 1, &this->_readfds, &this->_writefds, NULL, NULL);
 		if (activity < 0 && errno != EINTR)
 			throw Server::run_error((char *)"select failed");
 
@@ -81,18 +84,36 @@ void	Server::run(void) {
 		if (FD_ISSET(this->_fd, &this->_readfds))
 			this->addClient();
 
-		/* I/O operation from client */
+		/* I/O (input/output) operation from client */
 		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 			int	sd = it->first;
 
 			if (FD_ISSET(sd, &_readfds))
-				if (!this->clientRequest(sd))
+				if (!this->readFromClient(sd))
 					break ;
+		}
+
+		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+			int	sd = it->first;
+
+			if (it->second->getValidation() && it->second->getWritting())
+				if (FD_ISSET(sd, &_readfds))
+					this->sendToClient(sd);
 		}
 	}
 }
 
-bool	Server::clientRequest(int sd) {
+void	Server::sendToClient(int sd) {
+
+	std::string	to_send = _clients[sd]->getMsg();
+
+	// to do [: maybe we can implement more security here]
+	send(sd, to_send.c_str(), to_send.size(), 0);
+	_clients[sd]->setWritting(false);
+	_clients[sd]->setMsg("");
+}
+
+bool	Server::readFromClient(int sd) {
 
 	ssize_t	b_read = -1;
 	char	buff[BUFFER_SIZE] = {0};

@@ -56,7 +56,12 @@ class Client
 
 		int const &getFd( void ) const;
 		std::string const &getUsername( void ) const;
+		std::string const &getMsg( void ) const;
 		bool const &getValidation( void ) const;
+		bool const &getWritting( void ) const;
+
+		void	setWritting( bool );
+		void	setMsg( std::string const & );
 };
 
 class Server
@@ -68,6 +73,7 @@ class Server
 		std::map<int, Client *>	_clients;
 
 		fd_set					_readfds;
+		fd_set					_writefds;
 
 	public:
 		Server( int, std::string const & );
@@ -79,7 +85,8 @@ class Server
 
 		void	run( void );
 		void	addClient( void );
-		bool	clientRequest( int sd );
+		bool	readFromClient( int );
+		void	sendToClient( int );
 
 		class	init_error : public std::exception {
 			private:
