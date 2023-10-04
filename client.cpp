@@ -11,11 +11,15 @@ std::string const	&Client::getUsername( void ) const { return _username; }
 
 /* ---------------------------------- Coplien's f. ---------------------------------- */
 Client::Client(int const clt_fd) : _fd(clt_fd) {
-	/* initialize the client */
+
 	_username = "unnamed_user";
+	_validated = false;
+	_validateTry = 3;
+
+	_is_msg = false;
+	_msg_to_send = "";
 }
 
 Client::~Client() {
-	/* destroy the client */
 	close(_fd);
 }

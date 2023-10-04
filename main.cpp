@@ -32,8 +32,13 @@ int	main(int ac, char *av[])
 		/* run the server and wait for client */
 		Server_ptr->run();
 	}
-	catch (std::exception &error) {
+	catch (Server::init_error &error) {
 		std::cerr << "error: " << error.what() << std::endl;
+		return 1;
+	}
+	catch (Server::run_error &error) {
+		std::cerr << "error: " << error.what() << std::endl;
+		delete Server_ptr;
 		return 1;
 	}
 

@@ -1,10 +1,11 @@
 // lib.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 2-oct-2023
+// Date: 4-oct-2023
 
 #include "irc.hpp"
 
+/* convert a string in an int */ 
 int	_stoi(std::string const &str) {
 
 	if (str.size() > 10)
@@ -25,4 +26,21 @@ int	_stoi(std::string const &str) {
 	while (isdigit(*it))
 		val = val * 10 + (*it++) - '0';
 	return (isPositive ? val : -val);
+}
+
+/* convert a dirty string (with '\n', '\r', ...) to a clean string */
+std::string	_mtos(char *msg) {
+
+	int			end;
+	std::string	ret = msg;
+
+	if (ret.size() < 1)
+		return ret;
+	for (end = 0; ret[end] && ret[end] != '\r'; end++)
+		;;
+	ret.erase(end);
+	for (end = 0; ret[end] && ret[end] != '\n'; end++)
+		;;
+	ret.erase(end);
+	return ret;
 }

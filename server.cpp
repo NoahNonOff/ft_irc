@@ -16,12 +16,12 @@ Server::Server(int port, std::string const &password) : _password(password) {
 	/* create a socket (IPV4, TCP) */
 	this->_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 	if (-1 == this->_fd)
-		throw std::runtime_error("failed to create a socket");
+		throw Server::init_error((char *)"failed to create a socket");
 
 	/* remove a binding error (bind even if the port is already use) */
 	int	opt = 1;
 	if (setsockopt(this->_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int)) < 0)
-		throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
+		throw Server::init_error((char *)"setsockopt(SO_REUSEADDR) failed");
 
 	/* binding to the port */
 	this->_sockAddr.sin_family = AF_INET;
@@ -29,10 +29,10 @@ Server::Server(int port, std::string const &password) : _password(password) {
 	this->_sockAddr.sin_port = htons(port); // htons convert number to network byte order
 
 	if (bind(this->_fd, (struct sockaddr *)&this->_sockAddr, sizeof(sockaddr)) < 0)
-		throw std::runtime_error("failed during binding");
+		throw Server::init_error((char *)"failed during binding");
 
 	if (listen(this->_fd, MAX_WAIT) < 0)
-		throw std::runtime_error("failed to listen on socket");
+		throw Server::init_error((char *)"failed to listen on socket");
 
 	std::cout << "listen on port " << port << std::endl;
 }
@@ -75,7 +75,7 @@ void	Server::run(void) {
 
 		activity = select(max_sd + 1, &this->_readfds, NULL, NULL, NULL);
 		if (activity < 0 && errno != EINTR)
-			throw std::runtime_error("select failed");
+			throw Server::run_error((char *)"select failed");
 
 		/* incoming connection */
 		if (FD_ISSET(this->_fd, &this->_readfds))
@@ -86,12 +86,13 @@ void	Server::run(void) {
 			int	sd = it->first;
 
 			if (FD_ISSET(sd, &_readfds))
-				this->clientRequest(sd);
+				if (!this->clientRequest(sd))
+					break ;
 		}
 	}
 }
 
-void	Server::clientRequest(int sd) {
+bool	Server::clientRequest(int sd) {
 
 	ssize_t	b_read = -1;
 	char	buff[BUFFER_SIZE] = {0};
@@ -100,14 +101,17 @@ void	Server::clientRequest(int sd) {
 
 	/* destroy the client */
 	if (b_read < 1) {
+
+		std::cout << _clients.find(sd)->second->getUsername() << ": quit the server" << std::endl;
 		delete _clients.find(sd)->second;
 		_clients.erase(_clients.find(sd));
+		return false;
 	}
 	else {
-		buff[b_read - TRASH_SIZE] = 0; // remove the gliberish ('\n', '\r', ...)
-		std::string	msg = buff;
+		std::string	msg = _mtos(buff);
 		std::cout << _clients.find(sd)->second->getUsername() << ": {" << msg << "}" << std::endl;
 	}
+	return true;
 }
 
 void	Server::addClient(void) {
@@ -119,7 +123,7 @@ void	Server::addClient(void) {
 	int	new_socket = accept(_fd, (struct sockaddr *)&_sockAddr, &addr_len);
 
 	if (new_socket < 0)
-		throw std::runtime_error("failed during acceptation");
+		throw Server::run_error((char *)"failed during acceptation");
 
 	/* add the new socket to the socket_set */
 	this->_clients[new_socket] = new Client(new_socket);
