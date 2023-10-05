@@ -1,7 +1,7 @@
 // lib.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 4-oct-2023
+// Date: 5-oct-2023
 
 #include "irc.hpp"
 
@@ -42,5 +42,14 @@ std::string	_mtos(char *msg) {
 	for (end = 0; ret[end] && ret[end] != '\n'; end++)
 		;;
 	ret.erase(end);
+	return ret;
+}
+
+/* initialize the t_roles structure */
+t_roles	createT_roles(bool admin) {
+
+	t_roles	ret;
+
+	ret.admin = admin;
 	return ret;
 }

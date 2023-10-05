@@ -15,6 +15,7 @@ std::map<int, Client *> const &Server::getClients( void ) const { return _client
 /* ---------------------------------- Coplien's f. ---------------------------------- */
 Server::Server(int port, std::string const &password) : _password(password) {
 
+	_numClient = 0;
 	/* create a socket (IPV4, TCP) */
 	this->_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 	if (-1 == this->_fd)
@@ -84,7 +85,8 @@ void	Server::run(void) {
 
 		/* incoming connection */
 		if (FD_ISSET(this->_fd, &this->_readfds))
-			this->addClient();
+			if (_numClient < MAX_CLIENT)
+				this->addClient();
 
 		/* I/O (input/output) operation from client */
 		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
@@ -157,4 +159,5 @@ void	Server::addClient(void) {
 
 	/* add the new socket to the socket_set */
 	this->_clients[new_socket] = new Client(new_socket, _password);
+	_numClient++;
 }

@@ -5,7 +5,7 @@
 
 #include "irc.hpp"
 
-Server *Server_ptr;
+Server *Server_ptr = NULL;
 
 void	endProg(int signal) {
 

@@ -37,6 +37,11 @@
 # define BUFFER_SIZE 1000
 # define to_str( s ) # s
 
+/* --------------------- struct -------------------- */
+typedef struct {
+	bool	admin;
+}	t_roles;
+
 /* --------------------- class --------------------- */
 
 class Client
@@ -51,6 +56,8 @@ class Client
 
 		bool				_is_msg;
 		std::string			_msg_to_send;
+
+		// list of affiliated server [vector]
 
 	public:
 		Client( int, std::string const & );
@@ -71,16 +78,32 @@ class Client
 		bool	secure_connection( std::string const & );
 };
 
+class Channel
+{
+	private:
+		std::string		_name;
+		// list of users and roles [map<Client *, t_roles>]
+
+	public:
+		Channel( std::string const & );
+		~Channel();
+
+		std::string	const &getName( void ) const;
+};
+
 class Server
 {
 	private:
 		std::string const		_password;
 		int						_fd;
+		int						_numClient;
 		struct sockaddr_in		_sockAddr;
 		std::map<int, Client *>	_clients;
 
 		fd_set					_readfds;
 		fd_set					_writefds;
+
+		// channel's list [vector]
 
 	public:
 		Server( int, std::string const & );
@@ -116,5 +139,6 @@ class Server
 
 int				_stoi( std::string const & );
 std::string		_mtos( char * );
+t_roles			createT_roles( bool );
 
 #endif
