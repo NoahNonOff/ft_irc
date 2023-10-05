@@ -5,6 +5,8 @@
 
 #include "irc.hpp"
 
+struct timeval	tv = { 0, 5000 };
+
 /* ---------------------------------- Set and Get ---------------------------------- */
 int const &Server::getFd( void ) const { return _fd; }
 std::string const &Server::getPassword(void) const { return _password; };
@@ -76,7 +78,7 @@ void	Server::run(void) {
 				max_sd = sd;
 		}
 
-		activity = select(max_sd + 1, &this->_readfds, &this->_writefds, NULL, NULL);
+		activity = select(max_sd + 1, &this->_readfds, &this->_writefds, NULL, &tv);
 		if (activity < 0 && errno != EINTR)
 			throw Server::run_error((char *)"select failed");
 
@@ -96,7 +98,7 @@ void	Server::run(void) {
 		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 			int	sd = it->first;
 
-			if (it->second->getValidation() && it->second->getWritting())
+			if (it->second->getWritting())
 				if (FD_ISSET(sd, &_readfds))
 					this->sendToClient(sd);
 		}
@@ -107,7 +109,6 @@ void	Server::sendToClient(int sd) {
 
 	std::string	to_send = _clients[sd]->getMsg();
 
-	// to do [: maybe we can implement more security here]
 	send(sd, to_send.c_str(), to_send.size(), 0);
 	_clients[sd]->setWritting(false);
 	_clients[sd]->setMsg("");
@@ -117,20 +118,21 @@ bool	Server::readFromClient(int sd) {
 
 	ssize_t	b_read = -1;
 	char	buff[BUFFER_SIZE] = {0};
+	std::string	user = _clients.find(sd)->second->getUsername();
 
 	b_read = recv(sd, buff, BUFFER_SIZE, 0);
 
 	/* destroy the client */
 	if (b_read < 1) {
 
-		std::cout << _clients.find(sd)->second->getUsername() << ": quit the server" << std::endl;
+		std::cout << user << " (" << sd << "): quit the server" << std::endl;
 		delete _clients.find(sd)->second;
 		_clients.erase(_clients.find(sd));
 		return false;
 	}
 	else {
 		std::string	msg = _mtos(buff);
-		std::cout << _clients.find(sd)->second->getUsername() << ": {" << msg << "}" << std::endl;
+		std::cout << user << " (" << sd << "): {" << msg << "}" << std::endl;
 	}
 	return true;
 }

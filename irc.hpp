@@ -61,6 +61,7 @@ class Client
 		bool const &getWritting( void ) const;
 
 		void	setWritting( bool );
+		void	setValidation( bool );
 		void	setMsg( std::string const & );
 };
 
