@@ -1,7 +1,7 @@
 // irc.hpp
 //
 // Author: Noah BEAUFILS
-// Date: 4-oct-2023
+// Date: 5-oct-2023
 
 #ifndef IRC_HPP
 # define IRC_HPP
@@ -33,6 +33,7 @@
 #  define MAX_CLIENT 10
 # endif
 
+# define PROMPT "\x1B[1m$> \x1B[0m"
 # define BUFFER_SIZE 1000
 # define to_str( s ) # s
 
@@ -42,6 +43,7 @@ class Client
 {
 	private:
 		int const 			_fd;
+		std::string const	_password;
 		std::string			_username;
 
 		bool				_validated; /* does the client enter the password */
@@ -51,18 +53,22 @@ class Client
 		std::string			_msg_to_send;
 
 	public:
-		Client( int );
+		Client( int, std::string const & );
 		~Client();
 
 		int const &getFd( void ) const;
 		std::string const &getUsername( void ) const;
 		std::string const &getMsg( void ) const;
+		std::string const &getPassword( void ) const;
 		bool const &getValidation( void ) const;
 		bool const &getWritting( void ) const;
 
 		void	setWritting( bool );
 		void	setValidation( bool );
 		void	setMsg( std::string const & );
+
+		bool	treatRequest( std::string const & );
+		bool	secure_connection( std::string const & );
 };
 
 class Server

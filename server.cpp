@@ -1,7 +1,7 @@
 // server.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 4-oct-2023
+// Date: 5-oct-2023
 
 #include "irc.hpp"
 
@@ -133,6 +133,13 @@ bool	Server::readFromClient(int sd) {
 	else {
 		std::string	msg = _mtos(buff);
 		std::cout << user << " (" << sd << "): {" << msg << "}" << std::endl;
+		if (!_clients[sd]->treatRequest(msg)) {
+
+			/* the client must be disconnected */
+			delete _clients.find(sd)->second;
+			_clients.erase(_clients.find(sd));
+			return false;
+		}
 	}
 	return true;
 }
@@ -149,5 +156,5 @@ void	Server::addClient(void) {
 		throw Server::run_error((char *)"failed during acceptation");
 
 	/* add the new socket to the socket_set */
-	this->_clients[new_socket] = new Client(new_socket);
+	this->_clients[new_socket] = new Client(new_socket, _password);
 }
