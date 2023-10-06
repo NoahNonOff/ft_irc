@@ -48,7 +48,7 @@ class Client
 {
 	private:
 		int const 			_fd;
-		std::string const	_password;
+		std::string const	_password; /* password of the server */
 		std::string			_username;
 
 		bool				_validated; /* does the client enter the password */
@@ -81,20 +81,22 @@ class Client
 class Channel
 {
 	private:
-		std::string		_name;
+		std::string			_name;
+		std::string const	_password; /* password of the channel */
 		// list of users and roles [map<Client *, t_roles>]
 
 	public:
-		Channel( std::string const & );
+		Channel( std::string const &, std::string const & );
 		~Channel();
 
 		std::string	const &getName( void ) const;
+		std::string	const &getPassword( void ) const;
 };
 
 class Server
 {
 	private:
-		std::string const		_password;
+		std::string const		_password; /* password of the server */
 		int						_fd;
 		int						_numClient;
 		struct sockaddr_in		_sockAddr;
