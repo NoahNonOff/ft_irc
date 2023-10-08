@@ -1,17 +1,20 @@
 # Makefile
 #
 # Author: Noah BEAUFILS
-# Date: 4-oct-2023
+# Date: 8-oct-2023
 
-SRC =	main.cpp			\
-		lib.cpp				\
-		client.cpp			\
-		server.cpp
+DIR =	srcs
+
+SRC =	${DIR}/main.cpp				\
+		${DIR}/utils.cpp			\
+		${DIR}/client.cpp			\
+		${DIR}/server.cpp			\
+		${DIR}/command.cpp
 
 OBJ = $(SRC:.cpp=.o)
 CC = c++
 RM = rm -f
-CPPFLAGS = -Wall -Wextra -Werror -lpthread -std=c++98
+CPPFLAGS = -Wall -Wextra -Werror -I include -lpthread -std=c++98
 
 NAME = ft_irc
 

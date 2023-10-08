@@ -1,0 +1,19 @@
+// help.file
+//
+// Author: Noah BEAUFILS
+// Date: 8-oct-2023
+
+Once connected, you can run commands using '/' followed by the command name and theirs arguments.
+
+#toto	-> server named toto
+toto	-> user named toto
+
+I. Commands:
+	/help -> display this file
+	/join #nameOfChannel -> join or create the channel
+	/list -> list the channel present in the server
+	/nick nickname -> change your nickname
+	/user -> display information about the user
+	/users -> display information about all the users in the channel
+	/part -> disconnect yourself from the channel
+	/quit -> disconnect yourself from the server
