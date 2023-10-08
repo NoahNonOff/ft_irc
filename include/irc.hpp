@@ -14,6 +14,8 @@
 # include <cstdlib> /* exit */
 # include <csignal> /* signal */
 # include <cerrno> /* errno */
+# include <fstream>
+# include <vector>
 # include <map>
 
 # include <unistd.h>
@@ -53,6 +55,7 @@ std::string		_mtos( char * );
 t_roles			createT_roles( bool );
 
 /* ------------------- commands ------------------- */
-bool			is_request(std::string const &request);
+std::vector<std::string>	splitCmds(std::string const command);
+bool						is_request(std::string const &request);
 
 #endif

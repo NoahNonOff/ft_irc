@@ -11,6 +11,7 @@ bool const	&Client::getValidation(void) const { return _validated; }
 bool const	&Client::getWritting(void) const { return _is_msg; }
 std::string const	&Client::getMsg(void) const { return _msg_to_send; }
 std::string const	&Client::getUsername(void) const { return _username; }
+std::string const	&Client::getNickname(void) const { return _nickname; }
 std::string const	&Client::getPassword(void) const { return _password; }
 
 void	Client::setMsg(std::string const &n) { _msg_to_send = n; }
@@ -23,6 +24,7 @@ void	Client::addMsg(std::string const &n) { _msg_to_send.append(n); }
 Client::Client(int const clt_fd, std::string const &password) : _fd(clt_fd), _password(password) {
 
 	_username = "lil'one";
+	_nickname = "nickname";
 	_validated = false;
 	_validateTry = 3;
 
@@ -35,19 +37,21 @@ Client::Client(int const clt_fd, std::string const &password) : _fd(clt_fd), _pa
 }
 
 Client::~Client() {
+
+	/* must tell to all channel to close itself */
 	close(_fd);
 }
 
 /* ----------------------------------- functions ----------------------------------- */
-bool	Client::treatRequest(std::string const &request) {
+bool	Client::treatRequest(std::string const &request/* list of all client */) {
 	
 	bool ret = true;
 	if (!_validated)
 		return this->secure_connection(request);
 
 	if (is_request(request))
-		ret = this->executeCommand(request);
-	else
+		ret = this->executeCommand(request/* list of all client */);
+	//else
 		// launch the message to the channel
 
 	this->setWritting(true);
@@ -73,6 +77,36 @@ bool	Client::secure_connection(std::string const &request) {
 
 bool	Client::executeCommand(std::string const &command) {
 
-	(void)command;
+	std::vector<std::string>	commands = splitCmds(command);
+
+	if (commands.size() < 1)
+		return true;
+	if (!commands[0].compare("user"))
+		this->userCMD();
+	else if (!commands[0].compare("quit"))
+		return false;
+	else if (!commands[0].compare("help"))
+		this->helpCMD();
 	return true;
+}
+
+/* ------------------------------------ commands ----------------------------------- */
+void	Client::userCMD(void) {
+
+	std::string	info = "\x1B[34muser: " + this->getNickname() \
+	+ " " + this->getUsername() + "\x1B[0m\n";
+
+	this->setMsg(info);
+}
+
+void	Client::helpCMD(void) {
+
+	std::string		line;
+	std::string		help = "\x1B[34m";
+	std::ifstream	f_in("help.file");
+
+	while (std::getline(f_in, line)) {
+		help.append(line + "\n");
+	}
+	this->setMsg(help + "\x1B[0m");
 }

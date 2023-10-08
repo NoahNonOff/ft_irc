@@ -13,7 +13,9 @@ class Client
 	private:
 		int const 			_fd;
 		std::string const	_password; /* password of the server */
-		std::string			_username;
+
+		std::string			_username; /* whatever you want */
+		std::string			_nickname; /* unique across the server */
 
 		bool				_validated; /* does the client enter the password */
 		short				_validateTry; /* remainning tries */
@@ -29,6 +31,7 @@ class Client
 
 		int const &getFd( void ) const;
 		std::string const &getUsername( void ) const;
+		std::string const &getNickname( void ) const;
 		std::string const &getMsg( void ) const;
 		std::string const &getPassword( void ) const;
 		bool const &getValidation( void ) const;
@@ -42,6 +45,9 @@ class Client
 		bool	treatRequest( std::string const & );
 		bool	secure_connection( std::string const & );
 		bool	executeCommand( std::string const & );
+
+		void	userCMD( void );
+		void	helpCMD( void );
 };
 
 #endif

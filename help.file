@@ -4,16 +4,24 @@
 // Date: 8-oct-2023
 
 Once connected, you can run commands using '/' followed by the command name and theirs arguments.
+There is two type of message you can received:
+- the private ones starting by "[private]nickname: [ ... ]"
+- the public ones starting by "[public]username: [ ... ]"
 
 #toto	-> server named toto
 toto	-> user named toto
 
-I. Commands:
+Commands:
 	/help -> display this file
 	/join #nameOfChannel -> join or create the channel
 	/list -> list the channel present in the server
 	/nick nickname -> change your nickname
+	/name name -> change your username
 	/user -> display information about the user
 	/users -> display information about all the users in the channel
 	/part -> disconnect yourself from the channel
 	/quit -> disconnect yourself from the server
+
+	/chat reference -> send a private message
+
+If you just want to send a message to the channel you just have to type wathever you want and press <enter>
