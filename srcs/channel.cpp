@@ -1,7 +1,7 @@
 // channel.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 5-oct-2023
+// Date: 9-oct-2023
 
 #include "irc.hpp"
 
