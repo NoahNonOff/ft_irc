@@ -120,8 +120,8 @@ bool	Server::removeClient(int sd) {
 
 	delete _clients.find(sd)->second;
 	_clients.erase(_clients.find(sd));
-	return false;
 	_numClient--;
+	return false;
 }
 
 bool	Server::readFromClient(int sd) {
