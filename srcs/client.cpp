@@ -18,6 +18,17 @@ void	Client::setWritting(bool n) { _is_msg = n; }
 void	Client::setValidation(bool n) { _validated = n; }
 
 void	Client::addMsg(std::string const &n) { _msg_to_send.append(n); }
+void	Client::setMp(std::string const &msg, std::string const &src) {
+
+	if (!this->getValidation())
+		return ;
+	if (!this->getWritting()) {
+		this->setWritting(true);
+		this->setMsg("[private]" + src + ": " + msg + "\n");
+	}
+	else
+		this->addMsg("[private]" + src + ": " + msg + "\n");
+}
 
 /* ---------------------------------- Coplien's f. ---------------------------------- */
 Client::Client(int const clt_fd, std::string const &nickname) : _fd(clt_fd), _nickname(nickname) {
@@ -77,7 +88,6 @@ bool	Client::executeCommand(std::string const &command, Server *server) {
 
 	std::vector<std::string>	commands = splitCmds(command);
 
-	(void)server;
 	if (commands.size() < 1)
 		return true;
 	if (!commands[0].compare("user"))
@@ -86,10 +96,12 @@ bool	Client::executeCommand(std::string const &command, Server *server) {
 		return false;
 	else if (!commands[0].compare("help"))
 		this->helpCMD();
-	// else if (!commands[0].compare("name"))
-	// 	this->nameCMD(commands);
-	// else if (!commands[0].compare("nick"))
-	// 	this->nickCMD(commands, server);
+	else if (!commands[0].compare("name"))
+		this->nameCMD(commands);
+	else if (!commands[0].compare("nick"))
+		this->nickCMD(commands, server);
+	else if (!commands[0].compare("chat"))
+		this->chatCMD(commands, server);
 	return true;
 }
 
@@ -97,7 +109,8 @@ void	Client::launchMessage(std::string const &request) {
 
 	std::string	msg = request;
 	if (!this->_channel) {
-		this->setMsg(msg + "\n");
+		if (msg.size() > 0)
+			this->setMsg(msg + "\n");
 		return ;
 	}
 	// channel->broadcast(msg);
@@ -106,10 +119,10 @@ void	Client::launchMessage(std::string const &request) {
 /* ------------------------------------ commands ----------------------------------- */
 void	Client::userCMD(void) {
 
-	std::string	info = "\x1B[34muser: " + this->getNickname() \
-	+ " " + this->getUsername() + "\x1B[0m\n";
+	std::string	info = "user: " + this->getNickname() \
+	+ " " + this->getUsername() + "\n";
 
-	this->setMsg(info);
+	this->addMsg(info);
 }
 
 void	Client::helpCMD(void) {
@@ -121,5 +134,49 @@ void	Client::helpCMD(void) {
 	while (std::getline(f_in, line)) {
 		help.append(line + "\n");
 	}
-	this->setMsg(help + "\x1B[0m");
+	this->addMsg(help + "\x1B[0m");
+}
+
+void	Client::nameCMD(std::vector<std::string> commands) {
+	if (commands.size() < 2)
+		this->addMsg("\x1B[31m/name <new_name>\x1B[0m\n");
+	else
+		this->_username = commands[1];
+}
+
+void	Client::nickCMD(std::vector<std::string> commands, Server *server) {
+	if (commands.size() < 2) {
+		this->addMsg("\x1B[31m/nick <new_nickname>\x1B[0m\n");
+		return ;
+	}
+	if (!server->isAlreadyTaken(commands[1]))
+		this->_nickname = commands[1];
+	else
+		this->addMsg("\x1B[31m" + commands[1] + ": error: this nickname is already used by someone else\n\x1B[0m");
+}
+
+void	Client::chatCMD(std::vector<std::string> commands, Server *server) {
+
+	if (commands.size() < 3 || !commands[1].compare(_nickname)) {
+		this->addMsg("\x1B[31m/chat <nickname_of_interlocutor> <message>\x1B[0m\n");
+		return ;
+	}
+	std::map<int, Client *>::const_iterator	it = server->getClients().begin();
+	for (; it != server->getClients().end(); ++it) {
+		std::cout << it->second->getNickname() << " " << commands[1] << " " << it->second->getNickname().compare(commands[1]) << std::endl;
+		if (!it->second->getNickname().compare(commands[1])) {
+
+			/* set the message */
+			std::string	msg = "";
+			for (int i = 2; i < (int)commands.size(); i++) {
+				if (i != 2 && i < (int)commands.size())
+					msg += " ";
+				msg += commands[i];
+			}
+			msg += ".";
+			it->second->setMp(msg, _nickname);
+			return ;
+		}
+	}
+	this->addMsg("\x1B[31m" + commands[1] + ": error: no nickname match" + "\x1B[0m\n");
 }

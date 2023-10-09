@@ -41,6 +41,7 @@ class Client
 		void	setValidation( bool );
 		void	setMsg( std::string const & );
 		void	addMsg( std::string const & );
+		void	setMp(std::string const &msg, std::string const &src);
 
 		bool	treatRequest( std::string const &, Server * );
 		bool	secure_connection( std::string const &, std::string const & );
@@ -49,6 +50,9 @@ class Client
 
 		void	userCMD( void );
 		void	helpCMD( void );
+		void	nameCMD( std::vector<std::string> );
+		void	nickCMD( std::vector<std::string>, Server * );
+		void	chatCMD(std::vector<std::string>, Server * );
 };
 
 #endif
