@@ -1,7 +1,7 @@
 // server.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 5-oct-2023
+// Date: 9-oct-2023
 
 #include "irc.hpp"
 
@@ -116,6 +116,14 @@ void	Server::sendToClient(int sd) {
 	_clients[sd]->setMsg("");
 }
 
+bool	Server::removeClient(int sd) {
+
+	delete _clients.find(sd)->second;
+	_clients.erase(_clients.find(sd));
+	return false;
+	_numClient--;
+}
+
 bool	Server::readFromClient(int sd) {
 
 	ssize_t	b_read = -1;
@@ -125,23 +133,12 @@ bool	Server::readFromClient(int sd) {
 	b_read = recv(sd, buff, BUFFER_SIZE, 0);
 
 	/* destroy the client */
-	if (b_read < 1) {
-
-		std::cout << user << " (" << sd << "): quit the server" << std::endl;
-		delete _clients.find(sd)->second;
-		_clients.erase(_clients.find(sd));
-		return false;
-	}
+	if (b_read < 1)
+		return this->removeClient(sd);
 	else {
 		std::string	msg = _mtos(buff);
-		std::cout << user << " (" << sd << "): {" << msg << "}" << std::endl;
-		if (!_clients[sd]->treatRequest(msg)) {
-
-			/* the client must be disconnected */
-			delete _clients.find(sd)->second;
-			_clients.erase(_clients.find(sd));
-			return false;
-		}
+		if (!_clients[sd]->treatRequest(msg, this))
+			return this->removeClient(sd);
 	}
 	return true;
 }
@@ -158,6 +155,24 @@ void	Server::addClient(void) {
 		throw Server::run_error((char *)"failed during acceptation");
 
 	/* add the new socket to the socket_set */
-	this->_clients[new_socket] = new Client(new_socket, _password);
+	this->_clients[new_socket] = new Client(new_socket, this->giveNickname());
 	_numClient++;
+}
+
+std::string	Server::giveNickname(void) {
+
+	int	counter = -1;
+	while (++counter < MAX_CLIENT) {
+		if (!this->isAlreadyTaken(lst_name[counter]))
+			return lst_name[counter];
+	}
+	return "user??";
+}
+
+bool	Server::isAlreadyTaken(std::string const &str) {
+
+	for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+		if (!str.compare(it->second->getNickname()))
+			return true;
+	return false;
 }

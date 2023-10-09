@@ -1,7 +1,7 @@
 // server.hpp
 //
 // Author: Noah BEAUFILS
-// Date: 8-oct-2023
+// Date: 9-oct-2023
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
@@ -22,7 +22,7 @@ class Server
 		fd_set					_readfds;
 		fd_set					_writefds;
 
-		// channel's list [vector]
+		std::vector<Channel *>	_channels;
 
 	public:
 		Server( int, std::string const & );
@@ -34,8 +34,11 @@ class Server
 
 		void	run( void );
 		void	addClient( void );
+		bool	removeClient( int );
 		bool	readFromClient( int );
 		void	sendToClient( int );
+		std::string	giveNickname( void );
+		bool	isAlreadyTaken( std::string const & );
 
 		class	init_error : public std::exception {
 			private:

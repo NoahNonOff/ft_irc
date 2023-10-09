@@ -18,6 +18,7 @@
 # include <vector>
 # include <map>
 
+# include <stdlib.h>
 # include <unistd.h>
 # include <netinet/in.h> /* htons() */
 # include <sys/socket.h>
@@ -43,10 +44,18 @@
 # define BUFFER_SIZE 1000
 # define to_str( s ) # s
 
-/* --------------------- struct -------------------- */
-typedef struct {
-	bool	admin;
-}	t_roles;
+static const std::string	lst_name[10] = {
+	"user0",
+	"user1",
+	"user2",
+	"user3",
+	"user4",
+	"user5",
+	"user6",
+	"user7",
+	"user8",
+	"user9"
+};
 
 /* -------------------- utils --------------------- */
 
