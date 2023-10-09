@@ -86,6 +86,10 @@ bool	Client::executeCommand(std::string const &command, Server *server) {
 		return false;
 	else if (!commands[0].compare("help"))
 		this->helpCMD();
+	// else if (!commands[0].compare("name"))
+	// 	this->nameCMD(commands);
+	// else if (!commands[0].compare("nick"))
+	// 	this->nickCMD(commands, server);
 	return true;
 }
 
