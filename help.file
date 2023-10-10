@@ -1,12 +1,14 @@
 // help.file
 //
 // Author: Noah BEAUFILS
-// Date: 8-oct-2023
+// Date: 10-oct-2023
 
 Once connected, you can run commands using '/' followed by the command name and theirs arguments.
 There is two type of message you can received:
 - the private ones starting by "[private]nickname: [ ... ]"
 - the public ones starting by "[public]username: [ ... ]"
+
+In view of this IRC server sucks, there is no auto refresh on the client so all the activity will be refresh after one of your actions...
 
 #toto	-> server named toto
 toto	-> user named toto
@@ -25,3 +27,16 @@ Commands:
 	/chat reference msg -> send a private message
 
 If you just want to send a message to the channel you just have to type wathever you want and press <enter>
+
+You can only have two roles in the server: operator and regular. As operator, you have access to specific commands :
+~	/kick <nickname> -> eject a client from the channel
+~	/invite <nickname> -> invite someone to join the channel
+~	/topic (<new_topic>) -> change or view the channel topic
+~	/mode <option> -> change the channel's mode
+
+MODE options:
+~	i : set/remove Invite-only
+~	t : set/remove the topic command restriction
+~	k : set/remove the channel-key
+~	o : give/take the channel operator privilege
+~	l : set/remove the user limit to channel

@@ -1,22 +1,17 @@
 # Makefile
 #
 # Author: Noah BEAUFILS
-# Date: 8-oct-2023
+# Date: 10-oct-2023
 
-DIR =	srcs
-
-SRC =	${DIR}/main.cpp				\
-		${DIR}/utils.cpp			\
-		${DIR}/client.cpp			\
-		${DIR}/server.cpp			\
-		${DIR}/command.cpp
+SRC =	clt_main.cpp		\
+		clt.cpp
 
 OBJ = $(SRC:.cpp=.o)
 CC = c++
 RM = rm -f
-CPPFLAGS = -Wall -Wextra -Werror -I include -std=c++98
+CPPFLAGS = -Wall -Wextra -Werror -I . -lpthread -std=c++98
 
-NAME = ft_irc
+NAME = duck
 
 all: $(NAME)
 
