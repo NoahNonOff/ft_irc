@@ -4,12 +4,13 @@
 # Date: 10-oct-2023
 
 SRC =	clt_main.cpp		\
+		clt_visual.cpp		\
 		clt.cpp
 
 OBJ = $(SRC:.cpp=.o)
 CC = c++
 RM = rm -f
-CPPFLAGS = -Wall -Wextra -Werror -I . -lpthread -std=c++98
+CPPFLAGS = -Wall -Wextra -Werror -I . -std=c++98
 
 NAME = duck
 

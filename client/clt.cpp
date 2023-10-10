@@ -23,6 +23,10 @@ Clt::Clt(std::string const &host, int port) : _host(host), _port(port) {
 	if (connect(_fd, (SA*)&servaddr, sizeof(servaddr)))
 		throw std::runtime_error("connection failed");
 
+	_msg = "";
+	_prompt = "";
+	_toRead = false;
+
 	system("clear"); // clear the console
 	std::cout << "\t\e[36m\e[1m[ ==== IRC Client ==== ]\e[0m\n" << std::endl;
 	std::cout << "Connecting with duck " << _host << " " << _port << "..." << std::endl;
@@ -33,10 +37,20 @@ Clt::~Clt() {
 	close(_fd);
 }
 
+// use select to non-block the read
+// create a thread to check if a msg is received
 void	Clt::clientLoop( void ) {
 
+	char	c;
 	while (true) {
-		/* do something */
+
+		c = clt_extract_char();
+		if (c == '\n') {
+			std::cout << _prompt << std::endl; // send(_prompt)
+			_prompt = "";
+		}
+		else
+			_prompt += c;
 	}
 }
 
