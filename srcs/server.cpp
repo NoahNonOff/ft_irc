@@ -101,7 +101,7 @@ void	Server::run(void) {
 			int	sd = it->first;
 
 			if (it->second->getWritting())
-				if (FD_ISSET(sd, &_readfds))
+				if (FD_ISSET(sd, &_writefds))
 					this->sendToClient(sd);
 		}
 	}
@@ -137,6 +137,7 @@ bool	Server::readFromClient(int sd) {
 		return this->removeClient(sd);
 	else {
 		std::string	msg = _mtos(buff);
+		std::cout << msg << std::endl;
 		if (!_clients[sd]->treatRequest(msg, this))
 			return this->removeClient(sd);
 	}

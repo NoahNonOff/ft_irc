@@ -16,6 +16,9 @@
 # include <unistd.h>
 # include <netinet/in.h> /* htons() */
 # include <sys/socket.h>
+# include <sys/select.h>
+# include <sys/types.h>
+# include <sys/time.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <strings.h> // bzero()
@@ -24,6 +27,7 @@
 /* =============== macro =============== */
 # define SA struct sockaddr
 # define PROMPT "\x1B[1m$> \x1B[0m"
+# define BUFFER_SIZE 10000
 
 /* =============== class =============== */
 class Clt
@@ -34,17 +38,18 @@ class Clt
 		int					_fd;
 		std::string			_prompt;
 
-		bool				_toRead; /* true if a new message is received */
-		std::string			_msg; /* the mesage received */
+		struct termios		_oldt;
+		struct termios		_newt;
 
 	public:
 		Clt( std::string const &, int );
 		~Clt();
 
 		void	clientLoop( void );
+		void	treatChar( void );
+		bool	treatRequest( void );
 };
 
 /* =============== proto =============== */
-char	clt_extract_char( void );
 
 #endif
