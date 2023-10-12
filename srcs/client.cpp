@@ -13,7 +13,7 @@ std::string const	&Client::getMsg(void) const { return _msg_to_send; }
 std::string const	&Client::getUsername(void) const { return _username; }
 std::string const	&Client::getNickname(void) const { return _nickname; }
 
-void	Client::setMsg(std::string const &n) { _msg_to_send = n; }
+void	Client::setMsg(std::string const &n) { this->setWritting(true); _msg_to_send = n; }
 void	Client::setWritting(bool n) { _is_msg = n; }
 void	Client::setValidation(bool n) { _validated = n; }
 
@@ -42,7 +42,7 @@ Client::Client(int const clt_fd, std::string const &nickname) : _fd(clt_fd), _ni
 	_msg_to_send = "";
 
 	/* send the first prompt */
-	std::string msg = "\x1B[1m$> please enter the password: \x1B[0m";
+	std::string msg = "please enter the password:\n";
 	send(clt_fd, msg.c_str(), msg.size(), 0);
 }
 
@@ -63,22 +63,19 @@ bool	Client::treatRequest(std::string const &request, Server *server) {
 	else
 		this->launchMessage(request);
 
-	this->setWritting(true);
-	this->addMsg(PROMPT);
 	return ret;
 }
 
 bool	Client::secure_connection(std::string const &request, std::string const &password) {
 
+
 	this->setWritting(true);
-
 	if (!password.compare(request)) {
-
 		this->setValidation(true);
-		this->setMsg(PROMPT);
+		this->setMsg("good password, you are now connected\n");
 		return true;
 	}
-	this->setMsg("\x1B[1m$> bad password, please try again: \x1B[0m");
+	this->setMsg("bad password, please try again:\n");
 	if (--_validateTry < 1)
 		return false;
 	return true;
@@ -88,6 +85,7 @@ bool	Client::executeCommand(std::string const &command, Server *server) {
 
 	std::vector<std::string>	commands = splitCmds(command);
 
+	this->setWritting(true);
 	if (commands.size() < 1)
 		return true;
 	if (!commands[0].compare("user"))
@@ -109,8 +107,9 @@ void	Client::launchMessage(std::string const &request) {
 
 	std::string	msg = request;
 	if (!this->_channel) {
-		if (msg.size() > 0)
+		if (msg.size() > 0) {
 			this->setMsg(msg + "\n");
+		}
 		return ;
 	}
 	// channel->broadcast(msg);

@@ -5,7 +5,7 @@
 
 #include "clt.hpp"
 
-//struct timeval	tv = { 0, 5000 };
+struct timeval	tv = { 0, 5000 };
 
 Clt::Clt(std::string const &host, int port) : _host(host), _port(port) {
 
@@ -55,7 +55,7 @@ void	Clt::clientLoop( void ) {
 		FD_SET(_fd, &fds);
 
 
-		if (select(_fd + 1, &fds, NULL, NULL, NULL) < 0)
+		if (select(_fd + 1, &fds, NULL, NULL, &tv) < 0)
 			break ;
 
 
@@ -115,14 +115,11 @@ bool	Clt::treatRequest(void) {
 	char	buff[BUFFER_SIZE] = { 0 };
 	ssize_t	rd = -1;
 
-	if ((rd = recv(_fd, buff, BUFFER_SIZE, 0)) < 0)
+	if ((rd = recv(_fd, buff, BUFFER_SIZE, 0)) < 1)
 		return false;
-	if (rd == 0)
-		return true;
 
 	this->removePrompt();
-	std::cout << buff;
-	// std::cout << "\033[s";
+	std::cout << buff << "\033[s";
 	std::cout << PROMPT << _prompt;
 	return true;
 }

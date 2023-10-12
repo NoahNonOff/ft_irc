@@ -40,8 +40,7 @@
 #  define MAX_CLIENT 10
 # endif
 
-# define PROMPT "\x1B[1m$> \x1B[0m"
-# define BUFFER_SIZE 1000
+# define BUFFER_SIZE 10000
 # define to_str( s ) # s
 
 static const std::string	lst_name[10] = {
