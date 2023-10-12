@@ -27,6 +27,7 @@
 /* =============== macro =============== */
 # define SA struct sockaddr
 # define PROMPT "\x1B[1m$> \x1B[0m"
+# define PROMPT_SIZE 11
 # define BUFFER_SIZE 10000
 
 /* =============== class =============== */
@@ -41,13 +42,18 @@ class Clt
 		struct termios		_oldt;
 		struct termios		_newt;
 
+		bool				_is_msg;
+		std::string			_msg;
+
 	public:
 		Clt( std::string const &, int );
 		~Clt();
 
 		void	clientLoop( void );
 		void	treatChar( void );
-		bool	treatRequest( void );
+		void	do_backspace( void );
+		void	removePrompt( void );
+		// bool	treatRequest( void );
 };
 
 /* =============== proto =============== */

@@ -33,7 +33,6 @@ int	_stoi(std::string const &str) {
 void	endProg(int signal) {
 
 	if (signal == SIGINT) {
-		std::cout << "\033[2D"; /* remove the ^C */
 		delete clt;
 		exit (0);
 	}
