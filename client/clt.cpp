@@ -70,7 +70,7 @@ void	Clt::clientLoop( void ) {
 		fflush(stdout);
 	}
 	tcsetattr(STDIN_FILENO, TCSANOW, &_oldt);
-	std::cout << "connection closed by foreigned host" << std::endl;
+	std::cout << "\033[uconnection closed by foreigned host" << std::endl;
 }
 
 void	Clt::treatChar(void) {
@@ -83,10 +83,11 @@ void	Clt::treatChar(void) {
 	tcsetattr(STDIN_FILENO, TCSANOW, &_oldt);
 	if (c == '\n') {
 		_prompt += c;
-		this->removePrompt();
-		std::cout << PROMPT;
-		if (_prompt.size() > 1)
+		//this->removePrompt();
+		std::cout << "\n\033[s" << PROMPT;
+		if (_prompt.size() > 1) {
 			send(_fd, (void *)_prompt.c_str(), _prompt.size(), 0);
+		}
 		_prompt = "";
 	}
 	else if (c == 127)

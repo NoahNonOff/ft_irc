@@ -9,6 +9,7 @@
 # include "irc.hpp"
 
 class Client;
+class Channel;
 
 class Server
 {
@@ -31,6 +32,7 @@ class Server
 		int const &getFd( void ) const;
 		std::string const &getPassword( void ) const;
 		std::map<int, Client *> const &getClients( void ) const;
+		std::vector<Channel *> const &getChannel( void ) const;
 
 		void	run( void );
 		void	addClient( void );
@@ -39,6 +41,7 @@ class Server
 		void	sendToClient( int );
 		std::string	giveNickname( void );
 		bool	isAlreadyTaken( std::string const & );
+		Channel	*addChannel( std::string const & );
 
 		class	init_error : public std::exception {
 			private:

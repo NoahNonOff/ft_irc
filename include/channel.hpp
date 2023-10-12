@@ -10,19 +10,19 @@
 
 class Client;
 
-/* --------------------- struct -------------------- */
-typedef struct {
-	bool	admin;
-}	t_roles;
-
 /* ---------------------- class -------------------- */
 class Channel
 {
 	private:
 		std::string					_name;
-		std::string					_password; /* password of the channel */
 
-		std::map<Client *, t_roles>	_roles;
+		std::string					_topic;
+		std::string					_password; /* password of the channel */
+		int							_userLimit;
+
+		bool						_inviteOnly;
+
+		std::map<Client *, bool>	_admin;
 
 	public:
 		Channel( std::string const & );
@@ -30,6 +30,9 @@ class Channel
 
 		std::string	const &getName( void ) const;
 		std::string	const &getPassword( void ) const;
+
+		void	removeUser( Client * );
+		void	addUser( Client *, bool );
 };
 
 #endif

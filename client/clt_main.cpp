@@ -33,6 +33,7 @@ int	_stoi(std::string const &str) {
 void	endProg(int signal) {
 
 	if (signal == SIGINT) {
+		std::cout << "\033[uconnection closed by foreigned host" << std::endl;
 		delete clt;
 		exit (0);
 	}

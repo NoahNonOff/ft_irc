@@ -27,7 +27,6 @@
 /* =============== macro =============== */
 # define SA struct sockaddr
 # define PROMPT "\x1B[1m$> \x1B[0m"
-# define PROMPT_SIZE 11
 # define BUFFER_SIZE 10000
 
 /* =============== class =============== */

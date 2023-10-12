@@ -1,7 +1,7 @@
 // irc.hpp
 //
 // Author: Noah BEAUFILS
-// Date: 8-oct-2023
+// Date: 12-oct-2023
 
 #ifndef IRC_HPP
 # define IRC_HPP
@@ -60,7 +60,6 @@ static const std::string	lst_name[10] = {
 
 int				_stoi( std::string const & );
 std::string		_mtos( char * );
-t_roles			createT_roles( bool );
 
 /* ------------------- commands ------------------- */
 std::vector<std::string>	splitCmds(std::string const command);

@@ -16,7 +16,7 @@ toto	-> user named toto
 Commands:
 	/help -> display this file
 ~	/join #nameOfChannel -> join or create the channel
-~	/list -> list the channel present in the server
+	/list -> list the channel present in the server
 	/nick nickname -> change your nickname
 	/name name -> change your username
 	/user -> display information about the user
@@ -40,3 +40,4 @@ MODE options:
 ~	k : set/remove the channel-key
 ~	o : give/take the channel operator privilege
 ~	l : set/remove the user limit to channel
+

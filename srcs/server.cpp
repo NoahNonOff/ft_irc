@@ -11,6 +11,7 @@ struct timeval	tv = { 0, 5000 };
 int const &Server::getFd( void ) const { return _fd; }
 std::string const &Server::getPassword(void) const { return _password; };
 std::map<int, Client *> const &Server::getClients( void ) const { return _clients; }
+std::vector<Channel *> const &Server::getChannel( void ) const { return _channels; };
 
 /* ---------------------------------- Coplien's f. ---------------------------------- */
 Server::Server(int port, std::string const &password) : _password(password) {
@@ -47,6 +48,9 @@ Server::~Server() {
 
 	for (; it != _clients.end(); ++it)
 		delete it->second;
+
+	for (int i = 0; i < (int)_channels.size(); i++)
+		delete _channels[i];
 
 	_clients.clear();
 	close(_fd);
@@ -137,7 +141,6 @@ bool	Server::readFromClient(int sd) {
 		return this->removeClient(sd);
 	else {
 		std::string	msg = _mtos(buff);
-		std::cout << msg << std::endl;
 		if (!_clients[sd]->treatRequest(msg, this))
 			return this->removeClient(sd);
 	}
@@ -176,4 +179,11 @@ bool	Server::isAlreadyTaken(std::string const &str) {
 		if (!str.compare(it->second->getNickname()))
 			return true;
 	return false;
+}
+
+Channel	*Server::addChannel(std::string const &name) {
+
+	Channel	*new_channel = new Channel(name);
+	_channels.push_back(new_channel);
+	return new_channel;
 }

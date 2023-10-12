@@ -13,6 +13,9 @@ std::string	const &Channel::getPassword( void ) const { return _password; }
 Channel::Channel(std::string const &name) : _name(name) {
 	/* initiate the channel */
 	_password = "";
+	_topic = "";
+	_userLimit = 0;
+	_inviteOnly = false;
 }
 
 Channel::~Channel() {
@@ -20,3 +23,15 @@ Channel::~Channel() {
 }
 
 /* ----------------------------------- functions ----------------------------------- */
+
+void	Channel::removeUser(Client *clt) {
+	if (_admin.find(clt) != _admin.end())
+		_admin.erase(_admin.find(clt));
+}
+
+void	Channel::addUser(Client *clt, bool admin) {
+
+	if (_admin.find(clt) != _admin.end())
+		return ;
+	_admin[clt] = admin;
+}

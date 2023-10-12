@@ -47,12 +47,18 @@ class Client
 		bool	secure_connection( std::string const &, std::string const & );
 		bool	executeCommand( std::string const &, Server * );
 		void	launchMessage(std::string const &request);
+		void	quitChannel( void );
 
+		/* Commands functions */
+		void	pingCMD( void );
 		void	userCMD( void );
 		void	helpCMD( void );
+		void	partCMD( void );
+		void	listCMD( Server * );
 		void	nameCMD( std::vector<std::string> );
 		void	nickCMD( std::vector<std::string>, Server * );
-		void	chatCMD(std::vector<std::string>, Server * );
+		void	chatCMD( std::vector<std::string>, Server * );
+		void	joinCMD( std::vector<std::string>, Server * );
 };
 
 #endif

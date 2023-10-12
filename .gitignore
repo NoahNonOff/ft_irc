@@ -4,6 +4,7 @@
 *.txt
 # exclude test file
 *_test.*
-# exclude webserver
+# exclude binary
 ft_irc
 a.out
+duck

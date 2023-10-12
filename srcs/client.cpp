@@ -17,15 +17,19 @@ void	Client::setMsg(std::string const &n) { this->setWritting(true); _msg_to_sen
 void	Client::setWritting(bool n) { _is_msg = n; }
 void	Client::setValidation(bool n) { _validated = n; }
 
-void	Client::addMsg(std::string const &n) { _msg_to_send.append(n); }
+void	Client::addMsg(std::string const &n) {
+
+	if (!_is_msg)
+		_is_msg = true;
+	_msg_to_send.append(n);
+}
+
 void	Client::setMp(std::string const &msg, std::string const &src) {
 
 	if (!this->getValidation())
 		return ;
-	if (!this->getWritting()) {
-		this->setWritting(true);
+	if (!this->getWritting())
 		this->setMsg("[private]" + src + ": " + msg + "\n");
-	}
 	else
 		this->addMsg("[private]" + src + ": " + msg + "\n");
 }
@@ -42,12 +46,13 @@ Client::Client(int const clt_fd, std::string const &nickname) : _fd(clt_fd), _ni
 	_msg_to_send = "";
 
 	/* send the first prompt */
-	std::string msg = "please enter the password:\n";
+	std::string msg = "\x1B[35m\x1B[1mplease enter the password:\x1B[0m\n";
 	send(clt_fd, msg.c_str(), msg.size(), 0);
 }
 
 Client::~Client() {
 	std::cout << _username << " (" << _fd << "): quit the server" << std::endl;
+	_channel->removeUser(this);
 	close(_fd);
 }
 
@@ -68,14 +73,12 @@ bool	Client::treatRequest(std::string const &request, Server *server) {
 
 bool	Client::secure_connection(std::string const &request, std::string const &password) {
 
-
-	this->setWritting(true);
 	if (!password.compare(request)) {
 		this->setValidation(true);
-		this->setMsg("good password, you are now connected\n");
+		this->setMsg("\x1B[35m\x1B[1mgood password, you are now connected\x1B[0m\n");
 		return true;
 	}
-	this->setMsg("bad password, please try again:\n");
+	this->setMsg("\x1B[35m\x1B[1mbad password, please try again:\x1B[0m\n");
 	if (--_validateTry < 1)
 		return false;
 	return true;
@@ -85,11 +88,12 @@ bool	Client::executeCommand(std::string const &command, Server *server) {
 
 	std::vector<std::string>	commands = splitCmds(command);
 
-	this->setWritting(true);
 	if (commands.size() < 1)
 		return true;
 	if (!commands[0].compare("user"))
 		this->userCMD();
+	else if (!commands[0].compare("ping"))
+		this->pingCMD();
 	else if (!commands[0].compare("quit"))
 		return false;
 	else if (!commands[0].compare("help"))
@@ -100,6 +104,8 @@ bool	Client::executeCommand(std::string const &command, Server *server) {
 		this->nickCMD(commands, server);
 	else if (!commands[0].compare("chat"))
 		this->chatCMD(commands, server);
+	else if (!commands[0].compare("list"))
+		this->listCMD(server);
 	return true;
 }
 
@@ -115,7 +121,13 @@ void	Client::launchMessage(std::string const &request) {
 	// channel->broadcast(msg);
 }
 
+void	Client::quitChannel(void) { _channel = NULL; }
+
 /* ------------------------------------ commands ----------------------------------- */
+void	Client::pingCMD(void) { this->addMsg("pong\n"); }
+
+void	Client::partCMD(void) { this->quitChannel(); }
+
 void	Client::userCMD(void) {
 
 	std::string	info = "user: " + this->getNickname() \
@@ -178,4 +190,42 @@ void	Client::chatCMD(std::vector<std::string> commands, Server *server) {
 		}
 	}
 	this->addMsg("\x1B[31m" + commands[1] + ": error: no nickname match" + "\x1B[0m\n");
+}
+
+void	Client::listCMD(Server *server) {
+
+	std::vector<Channel *>	lst_channel = server->getChannel();
+	if (lst_channel.size() < 1) {
+		this->addMsg("\x1B[31merror: no channel yet\x1B[0m\n");
+		return ;
+	}
+	this->addMsg("list:\n");
+	for (int i = 0; lst_channel[i]; i++)
+		this->addMsg("\t" + lst_channel[i]->getName() + "\n");
+}
+
+void	Client::joinCMD(std::vector<std::string> commands, Server *server) {
+
+	if (commands.size() != 2) {
+		this->addMsg("\x1B[31m/join <server_name>\x1B[0m\n");
+		return ;
+	}
+	Channel	*old_channel = NULL;
+	std::vector<Channel *>	lst_channel = server->getChannel();
+	for (int i = 0; i < (int)lst_channel.size(); i++) {
+		if (lst_channel[i]->getName().compare(commands[1]))
+			old_channel = lst_channel[i];
+	}
+	if (!old_channel) {
+		/* create the channel with admin right */
+		_channel = server->addChannel(commands[1]);
+		_channel->addUser(this, true);
+		this->addMsg("you have created " + commands[1] + "\n");
+		return ;
+	}
+	/* join a channel with regular right */
+	this->quitChannel();
+	_channel = old_channel;
+	old_channel->addUser(this, false);
+	this->addMsg("you have joinned " + commands[1] + "\n");
 }

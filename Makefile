@@ -8,6 +8,7 @@ DIR =	srcs
 SRC =	${DIR}/main.cpp				\
 		${DIR}/utils.cpp			\
 		${DIR}/client.cpp			\
+		${DIR}/channel.cpp			\
 		${DIR}/server.cpp			\
 		${DIR}/command.cpp
 

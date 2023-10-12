@@ -44,12 +44,3 @@ std::string	_mtos(char *msg) {
 	ret.erase(end);
 	return ret;
 }
-
-/* initialize the t_roles structure */
-t_roles	createT_roles(bool admin) {
-
-	t_roles	ret;
-
-	ret.admin = admin;
-	return ret;
-}
