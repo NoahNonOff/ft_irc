@@ -42,9 +42,6 @@ class Clt
 		struct termios		_oldt;
 		struct termios		_newt;
 
-		bool				_is_msg;
-		std::string			_msg;
-
 	public:
 		Clt( std::string const &, int );
 		~Clt();
@@ -53,7 +50,7 @@ class Clt
 		void	treatChar( void );
 		void	do_backspace( void );
 		void	removePrompt( void );
-		// bool	treatRequest( void );
+		bool	treatRequest( void );
 };
 
 /* =============== proto =============== */

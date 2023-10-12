@@ -1,10 +1,9 @@
 # Makefile
 #
 # Author: Noah BEAUFILS
-# Date: 10-oct-2023
+# Date: 12-oct-2023
 
 SRC =	clt_main.cpp		\
-		clt_visual.cpp		\
 		clt.cpp
 
 OBJ = $(SRC:.cpp=.o)
