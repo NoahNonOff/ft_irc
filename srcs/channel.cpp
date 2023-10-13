@@ -1,13 +1,14 @@
 // channel.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 9-oct-2023
+// Date: 13-oct-2023
 
 #include "irc.hpp"
 
 /* ---------------------------------- Set and Get ---------------------------------- */
 std::string	const &Channel::getName(void) const { return _name; }
 std::string	const &Channel::getPassword( void ) const { return _password; }
+std::map<Client *, bool> const &Channel::getAdmin( void ) const { return _admin; }
 
 /* ---------------------------------- Coplien's f. ---------------------------------- */
 Channel::Channel(std::string const &name) : _name(name) {
@@ -25,8 +26,11 @@ Channel::~Channel() {
 /* ----------------------------------- functions ----------------------------------- */
 
 void	Channel::removeUser(Client *clt) {
-	if (_admin.find(clt) != _admin.end())
-		_admin.erase(_admin.find(clt));
+
+	if (clt) {
+		if (_admin.find(clt) != _admin.end())
+			_admin.erase(_admin.find(clt));
+	}
 }
 
 void	Channel::addUser(Client *clt, bool admin) {

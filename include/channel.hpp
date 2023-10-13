@@ -1,7 +1,7 @@
 // channel.hpp
 //
 // Author: Noah BEAUFILS
-// Date: 9-oct-2023
+// Date: 13-oct-2023
 
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
@@ -30,6 +30,7 @@ class Channel
 
 		std::string	const &getName( void ) const;
 		std::string	const &getPassword( void ) const;
+		std::map<Client *, bool> const &getAdmin( void ) const;
 
 		void	removeUser( Client * );
 		void	addUser( Client *, bool );

@@ -15,7 +15,7 @@ SRC =	${DIR}/main.cpp				\
 OBJ = $(SRC:.cpp=.o)
 CC = c++
 RM = rm -f
-CPPFLAGS = -Wall -Wextra -Werror -I include -std=c++98
+CPPFLAGS = -Wall -Wextra -Werror -I include -g3 -std=c++98
 
 NAME = ft_irc
 

@@ -1,7 +1,7 @@
 // server.hpp
 //
 // Author: Noah BEAUFILS
-// Date: 9-oct-2023
+// Date: 12-oct-2023
 
 #ifndef SERVER_HPP
 # define SERVER_HPP

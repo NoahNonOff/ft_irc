@@ -1,7 +1,7 @@
 // utils.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 5-oct-2023
+// Date: 12-oct-2023
 
 #include "irc.hpp"
 

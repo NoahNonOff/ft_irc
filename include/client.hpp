@@ -52,6 +52,7 @@ class Client
 		/* Commands functions */
 		void	pingCMD( void );
 		void	userCMD( void );
+		void	usersCMD( void );
 		void	helpCMD( void );
 		void	partCMD( void );
 		void	listCMD( Server * );

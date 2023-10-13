@@ -1,7 +1,7 @@
 // client.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 9-oct-2023
+// Date: 13-oct-2023
 
 #include "irc.hpp"
 
@@ -52,7 +52,8 @@ Client::Client(int const clt_fd, std::string const &nickname) : _fd(clt_fd), _ni
 
 Client::~Client() {
 	std::cout << _username << " (" << _fd << "): quit the server" << std::endl;
-	_channel->removeUser(this);
+	if (_channel)
+		_channel->removeUser(this);
 	close(_fd);
 }
 
@@ -92,8 +93,12 @@ bool	Client::executeCommand(std::string const &command, Server *server) {
 		return true;
 	if (!commands[0].compare("user"))
 		this->userCMD();
+	else if (!commands[0].compare("users"))
+		this->usersCMD();
 	else if (!commands[0].compare("ping"))
 		this->pingCMD();
+	else if (!commands[0].compare("part"))
+		this->partCMD();
 	else if (!commands[0].compare("quit"))
 		return false;
 	else if (!commands[0].compare("help"))
@@ -104,8 +109,12 @@ bool	Client::executeCommand(std::string const &command, Server *server) {
 		this->nickCMD(commands, server);
 	else if (!commands[0].compare("chat"))
 		this->chatCMD(commands, server);
+	else if (!commands[0].compare("join"))
+		this->joinCMD(commands, server);
 	else if (!commands[0].compare("list"))
 		this->listCMD(server);
+	else
+		this->addMsg("\x1B[31merror: " + commands[0] + ": command not found\x1B[0m\n");
 	return true;
 }
 
@@ -131,9 +140,25 @@ void	Client::partCMD(void) { this->quitChannel(); }
 void	Client::userCMD(void) {
 
 	std::string	info = "user: " + this->getNickname() \
-	+ " " + this->getUsername() + "\n";
+	+ "::" + this->getUsername() + "::" + (_channel ? _channel->getName() : "no channel") + "\n";
 
 	this->addMsg(info);
+}
+
+void	Client::usersCMD(void) {
+
+	if (!_channel) {
+		this->userCMD(); return ;
+	}
+
+	std::map<Client *, bool>			lst_client = _channel->getAdmin();
+	std::map<Client *, bool>::iterator	it = lst_client.begin();
+
+	for (; it != lst_client.end(); ++it) {
+		std::string	info = "user: " + it->first->getNickname() \
+		+ "::" + it->first->getUsername() + "::" + (it->second ? "admin" : "regular") + "\n";
+		this->addMsg(info);
+	}
 }
 
 void	Client::helpCMD(void) {
@@ -150,14 +175,14 @@ void	Client::helpCMD(void) {
 
 void	Client::nameCMD(std::vector<std::string> commands) {
 	if (commands.size() < 2)
-		this->addMsg("\x1B[31m/name <new_name>\x1B[0m\n");
+		this->addMsg("\x1B[31merror: /name <new_name>\x1B[0m\n");
 	else
 		this->_username = commands[1];
 }
 
 void	Client::nickCMD(std::vector<std::string> commands, Server *server) {
 	if (commands.size() < 2) {
-		this->addMsg("\x1B[31m/nick <new_nickname>\x1B[0m\n");
+		this->addMsg("\x1B[31merror: /nick <new_nickname>\x1B[0m\n");
 		return ;
 	}
 	if (!server->isAlreadyTaken(commands[1]))
@@ -169,7 +194,7 @@ void	Client::nickCMD(std::vector<std::string> commands, Server *server) {
 void	Client::chatCMD(std::vector<std::string> commands, Server *server) {
 
 	if (commands.size() < 3 || !commands[1].compare(_nickname)) {
-		this->addMsg("\x1B[31m/chat <nickname_of_interlocutor> <message>\x1B[0m\n");
+		this->addMsg("\x1B[31merror: /chat <nickname_of_interlocutor> <message>\x1B[0m\n");
 		return ;
 	}
 	std::map<int, Client *>::const_iterator	it = server->getClients().begin();
@@ -199,9 +224,10 @@ void	Client::listCMD(Server *server) {
 		this->addMsg("\x1B[31merror: no channel yet\x1B[0m\n");
 		return ;
 	}
-	this->addMsg("list:\n");
-	for (int i = 0; lst_channel[i]; i++)
+	this->addMsg("\x1B[34mlist:\n");
+	for (int i = 0; i < (int)lst_channel.size(); i++)
 		this->addMsg("\t" + lst_channel[i]->getName() + "\n");
+	this->addMsg("\x1B[0m");
 }
 
 void	Client::joinCMD(std::vector<std::string> commands, Server *server) {
@@ -210,10 +236,17 @@ void	Client::joinCMD(std::vector<std::string> commands, Server *server) {
 		this->addMsg("\x1B[31m/join <server_name>\x1B[0m\n");
 		return ;
 	}
+
+	/* if you try to connect to the server */
+	if (_channel && _channel->getName().compare(commands[1])) {
+		this->addMsg("You are already in the channel\n");
+		return ;
+	}
+
 	Channel	*old_channel = NULL;
 	std::vector<Channel *>	lst_channel = server->getChannel();
 	for (int i = 0; i < (int)lst_channel.size(); i++) {
-		if (lst_channel[i]->getName().compare(commands[1]))
+		if (!lst_channel[i]->getName().compare(commands[1]))
 			old_channel = lst_channel[i];
 	}
 	if (!old_channel) {
