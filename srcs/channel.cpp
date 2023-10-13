@@ -39,3 +39,18 @@ void	Channel::addUser(Client *clt, bool admin) {
 		return ;
 	_admin[clt] = admin;
 }
+
+void	Channel::broadcast(std::string const &msg, Client *clt) {
+
+	std::map<Client *, bool>::iterator	it = _admin.begin();
+	if (msg.size() < 1) {
+		for (;it != _admin.end(); it++) {
+			if (it->first == clt)
+				continue ;
+			it->first->addMsg(clt->getUsername() + " quit the channel\n");
+		}
+	}
+	else
+		for (;it != _admin.end(); it++)
+			it->first->addMsg("[public]" + clt->getUsername() + ": " + msg + "\n");
+}

@@ -10,18 +10,15 @@ There is two type of message you can received:
 
 In view of this IRC server sucks, there is no auto refresh on the client so all the activity will be refresh after one of your actions...
 
-#toto	-> server named toto
-toto	-> user named toto
-
 Commands:
 	/help -> display this file
-~	/join #nameOfChannel -> join or create the channel
+	/join #nameOfChannel -> join or create the channel
 	/list -> list the channel present in the server
 	/nick nickname -> change your nickname
 	/name name -> change your username
 	/user -> display information about the user
-~	/users -> display information about all the users in the channel
-~	/part -> disconnect yourself from the channel
+	/users -> display information about all the users in the channel
+	/part -> disconnect yourself from the channel
 	/quit -> disconnect yourself from the server
 
 	/chat reference msg -> send a private message

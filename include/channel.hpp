@@ -34,6 +34,7 @@ class Channel
 
 		void	removeUser( Client * );
 		void	addUser( Client *, bool );
+		void	broadcast( std::string const &, Client * );
 };
 
 #endif

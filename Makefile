@@ -1,7 +1,7 @@
 # Makefile
 #
 # Author: Noah BEAUFILS
-# Date: 8-oct-2023
+# Date: 13-oct-2023
 
 DIR =	srcs
 
@@ -23,6 +23,12 @@ all: $(NAME)
 
 $(NAME): $(OBJ)
 	$(CC) $(CPPFLAGS) $(OBJ) -o $(NAME)
+
+#cpu_usage: ${OBJ}
+#	$(CC) $(CPPFLAGS) $(OBJ) -o $(NAME) -pg
+#	./${NAME} 4526 test
+#	gprof ${NAME} gmon.out > cpu_usage.txt
+#	rm gmon.out
 
 clean:
 	$(RM) $(OBJ)

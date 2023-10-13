@@ -8,3 +8,6 @@
 ft_irc
 a.out
 duck
+# exclude cpu files
+gmon.out
+cpu_usage.txt

@@ -121,13 +121,12 @@ bool	Client::executeCommand(std::string const &command, Server *server) {
 void	Client::launchMessage(std::string const &request) {
 
 	std::string	msg = request;
-	if (!this->_channel) {
-		if (msg.size() > 0) {
-			this->setMsg(msg + "\n");
-		}
-		return ;
-	}
-	// channel->broadcast(msg);
+	if (msg.size() < 1)
+		return ; 
+	if (!this->_channel)
+		this->setMsg(msg + "\n");
+	else
+		_channel->broadcast(msg, this);
 }
 
 void	Client::quitChannel(void) { _channel = NULL; }
@@ -135,7 +134,11 @@ void	Client::quitChannel(void) { _channel = NULL; }
 /* ------------------------------------ commands ----------------------------------- */
 void	Client::pingCMD(void) { this->addMsg("pong\n"); }
 
-void	Client::partCMD(void) { this->quitChannel(); }
+void	Client::partCMD(void) { 
+	if (_channel)
+		_channel->broadcast("", this);
+	this->quitChannel();
+}
 
 void	Client::userCMD(void) {
 
@@ -151,12 +154,19 @@ void	Client::usersCMD(void) {
 		this->userCMD(); return ;
 	}
 
+	std::string							info;
 	std::map<Client *, bool>			lst_client = _channel->getAdmin();
 	std::map<Client *, bool>::iterator	it = lst_client.begin();
 
 	for (; it != lst_client.end(); ++it) {
-		std::string	info = "user: " + it->first->getNickname() \
-		+ "::" + it->first->getUsername() + "::" + (it->second ? "admin" : "regular") + "\n";
+		if (it->first == this) {
+			info = "\x1B[35muser: " + it->first->getNickname() \
+			+ "::" + it->first->getUsername() + "::" + (it->second ? "admin" : "regular") + "\x1B[0m\n";
+		}
+		else {
+			info = "user: " + it->first->getNickname() \
+			+ "::" + it->first->getUsername() + "::" + (it->second ? "admin" : "regular") + "\n";
+		}
 		this->addMsg(info);
 	}
 }
@@ -224,7 +234,7 @@ void	Client::listCMD(Server *server) {
 		this->addMsg("\x1B[31merror: no channel yet\x1B[0m\n");
 		return ;
 	}
-	this->addMsg("\x1B[34mlist:\n");
+	this->addMsg("list:\n");
 	for (int i = 0; i < (int)lst_channel.size(); i++)
 		this->addMsg("\t" + lst_channel[i]->getName() + "\n");
 	this->addMsg("\x1B[0m");
