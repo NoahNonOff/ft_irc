@@ -5,7 +5,6 @@
 
 #include "irc.hpp"
 
-struct timeval	tv = { 0, 5000 };
 
 /* ---------------------------------- Set and Get ---------------------------------- */
 int const &Server::getFd( void ) const { return _fd; }
@@ -77,13 +76,15 @@ void	Server::run(void) {
 			int	sd = it->second->getFd();
 			if (sd > 0) {
 				FD_SET(sd, &this->_readfds);
-				FD_SET(sd, &this->_writefds);
+				if (it->second->getWritting())
+					FD_SET(sd, &this->_writefds);
 			}
 			if (sd > max_sd)
 				max_sd = sd;
 		}
 
-		activity = select(max_sd + 1, &this->_readfds, &this->_writefds, NULL, NULL);
+		struct timeval	tv = { 0, 50000 };
+		activity = select(max_sd + 1, &this->_readfds, &this->_writefds, NULL, &tv);
 		if (activity < 0 && errno != EINTR)
 			throw Server::run_error((char *)"select failed");
 

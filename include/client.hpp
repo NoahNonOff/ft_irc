@@ -9,6 +9,7 @@
 # include "irc.hpp"
 
 class Server;
+class Channel;
 
 class Client
 {

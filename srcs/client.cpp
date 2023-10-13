@@ -13,26 +13,15 @@ std::string const	&Client::getMsg(void) const { return _msg_to_send; }
 std::string const	&Client::getUsername(void) const { return _username; }
 std::string const	&Client::getNickname(void) const { return _nickname; }
 
-void	Client::setMsg(std::string const &n) { this->setWritting(true); _msg_to_send = n; }
+void	Client::setMsg(std::string const &n) { _msg_to_send = n; }
 void	Client::setWritting(bool n) { _is_msg = n; }
 void	Client::setChannel(Channel *n) { _channel = n; }
 void	Client::setValidation(bool n) { _validated = n; }
 
-void	Client::addMsg(std::string const &n) {
-
-	if (!_is_msg)
-		_is_msg = true;
-	_msg_to_send.append(n);
-}
+void	Client::addMsg(std::string const &n) { _is_msg = true; _msg_to_send.append(n); }
 
 void	Client::setMp(std::string const &msg, std::string const &src) {
-
-	if (!this->getValidation())
-		return ;
-	if (!this->getWritting())
-		this->setMsg("[private]" + src + ": " + msg + "\n");
-	else
-		this->addMsg("[private]" + src + ": " + msg + "\n");
+	this->addMsg("[private]" + src + ": " + msg + "\n");
 }
 
 /* ---------------------------------- Coplien's f. ---------------------------------- */
@@ -77,10 +66,10 @@ bool	Client::secure_connection(std::string const &request, std::string const &pa
 
 	if (!password.compare(request)) {
 		this->setValidation(true);
-		this->setMsg("\x1B[35m\x1B[1mgood password, you are now connected\x1B[0m\n");
+		this->addMsg("\x1B[35m\x1B[1mgood password, you are now connected\x1B[0m\n");
 		return true;
 	}
-	this->setMsg("\x1B[35m\x1B[1mbad password, please try again:\x1B[0m\n");
+	this->addMsg("\x1B[35m\x1B[1mbad password, please try again:\x1B[0m\n");
 	if (--_validateTry < 1)
 		return false;
 	return true;
@@ -133,7 +122,7 @@ void	Client::launchMessage(std::string const &request) {
 	if (msg.size() < 1)
 		return ; 
 	if (!this->_channel)
-		this->setMsg(msg + "\n");
+		this->addMsg(msg + "\n");
 	else
 		_channel->broadcast(msg, this);
 }

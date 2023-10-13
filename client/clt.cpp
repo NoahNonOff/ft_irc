@@ -5,7 +5,6 @@
 
 #include "clt.hpp"
 
-struct timeval	tv = { 0, 5000 };
 
 Clt::Clt(std::string const &host, int port) : _host(host), _port(port) {
 
@@ -54,10 +53,9 @@ void	Clt::clientLoop( void ) {
 		FD_SET(0, &fds); // check at input
 		FD_SET(_fd, &fds);
 
-
+		struct timeval	tv = { 0, 50000 };
 		if (select(_fd + 1, &fds, NULL, NULL, &tv) < 0)
 			break ;
-
 
 		/* we can read from the input */
 		if (FD_ISSET(0, &fds))

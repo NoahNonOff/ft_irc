@@ -23,11 +23,10 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	$(CC) $(CPPFLAGS) $(OBJ) -o $(NAME)
 
-#cpu_usage: ${OBJ}
-#	$(CC) $(CPPFLAGS) $(OBJ) -o $(NAME) -pg
-#	./${NAME} 4526 test
-#	gprof ${NAME} gmon.out > cpu_usage.txt
-#	rm gmon.out
+cpu: ${OBJ}
+	$(CC) $(CPPFLAGS) $(OBJ) -o $(NAME) -pg
+#	./${NAME} 4526 test						(run your program)
+#	gprof ${NAME} gmon.out > cpu_usage.txt	(write the result in cpu_usage.txt)
 
 clean:
 	$(RM) $(OBJ)
