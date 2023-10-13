@@ -9,8 +9,7 @@ SRC =	${DIR}/main.cpp				\
 		${DIR}/utils.cpp			\
 		${DIR}/client.cpp			\
 		${DIR}/channel.cpp			\
-		${DIR}/server.cpp			\
-		${DIR}/command.cpp
+		${DIR}/server.cpp
 
 OBJ = $(SRC:.cpp=.o)
 CC = c++

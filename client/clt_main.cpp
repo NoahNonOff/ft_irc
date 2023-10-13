@@ -49,12 +49,12 @@ int main(int ac, char **av) {
 
 	try {
 		/* initiate the client */
+		std::signal(SIGINT, &endProg);
 		std::string	host = ac==2 ? "127.0.0.1" : av[1];
 		int			port = ac==2 ? _stoi(av[1]) : _stoi(av[2]);
 		clt = new Clt(host, port);
 
 		/* initialize the signal handler to close the client */
-		std::signal(SIGINT, &endProg);
 
 		/* run the client */
 		clt->clientLoop();

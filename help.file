@@ -26,9 +26,9 @@ Commands:
 If you just want to send a message to the channel you just have to type wathever you want and press <enter>
 
 You can only have two roles in the server: operator and regular. As operator, you have access to specific commands :
-~	/kick <nickname> -> eject a client from the channel
+	/kick <nickname> -> eject a client from the channel
 ~	/invite <nickname> -> invite someone to join the channel
-~	/topic (<new_topic>) -> change or view the channel topic
+	/topic (<new_topic>) -> change or view the channel topic
 ~	/mode <option> -> change the channel's mode
 
 MODE options:

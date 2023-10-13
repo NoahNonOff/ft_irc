@@ -39,6 +39,7 @@ class Client
 
 		void	setWritting( bool );
 		void	setValidation( bool );
+		void	setChannel( Channel * );
 		void	setMsg( std::string const & );
 		void	addMsg( std::string const & );
 		void	setMp(std::string const &msg, std::string const &src);
@@ -57,6 +58,8 @@ class Client
 		void	partCMD( void );
 		void	listCMD( Server * );
 		void	nameCMD( std::vector<std::string> );
+		void	kickCMD( std::vector<std::string> );
+		void	topicCMD( std::vector<std::string> );
 		void	nickCMD( std::vector<std::string>, Server * );
 		void	chatCMD( std::vector<std::string>, Server * );
 		void	joinCMD( std::vector<std::string>, Server * );

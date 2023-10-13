@@ -15,6 +15,7 @@ std::string const	&Client::getNickname(void) const { return _nickname; }
 
 void	Client::setMsg(std::string const &n) { this->setWritting(true); _msg_to_send = n; }
 void	Client::setWritting(bool n) { _is_msg = n; }
+void	Client::setChannel(Channel *n) { _channel = n; }
 void	Client::setValidation(bool n) { _validated = n; }
 
 void	Client::addMsg(std::string const &n) {
@@ -101,10 +102,16 @@ bool	Client::executeCommand(std::string const &command, Server *server) {
 		this->partCMD();
 	else if (!commands[0].compare("quit"))
 		return false;
+
 	else if (!commands[0].compare("help"))
 		this->helpCMD();
 	else if (!commands[0].compare("name"))
 		this->nameCMD(commands);
+	else if (!commands[0].compare("kick"))
+		this->kickCMD(commands);
+	else if (!commands[0].compare("topic"))
+		this->topicCMD(commands);
+
 	else if (!commands[0].compare("nick"))
 		this->nickCMD(commands, server);
 	else if (!commands[0].compare("chat"))
@@ -118,6 +125,8 @@ bool	Client::executeCommand(std::string const &command, Server *server) {
 	return true;
 }
 
+void	Client::quitChannel(void) { _channel = NULL; }
+
 void	Client::launchMessage(std::string const &request) {
 
 	std::string	msg = request;
@@ -129,9 +138,9 @@ void	Client::launchMessage(std::string const &request) {
 		_channel->broadcast(msg, this);
 }
 
-void	Client::quitChannel(void) { _channel = NULL; }
 
-/* ------------------------------------ commands ----------------------------------- */
+/* ==================================== commands ==================================== */
+
 void	Client::pingCMD(void) { this->addMsg("pong\n"); }
 
 void	Client::partCMD(void) { 
@@ -151,7 +160,8 @@ void	Client::userCMD(void) {
 void	Client::usersCMD(void) {
 
 	if (!_channel) {
-		this->userCMD(); return ;
+		this->userCMD();
+		return ;
 	}
 
 	std::string							info;
@@ -219,7 +229,6 @@ void	Client::chatCMD(std::vector<std::string> commands, Server *server) {
 					msg += " ";
 				msg += commands[i];
 			}
-			msg += ".";
 			it->second->setMp(msg, _nickname);
 			return ;
 		}
@@ -271,4 +280,47 @@ void	Client::joinCMD(std::vector<std::string> commands, Server *server) {
 	_channel = old_channel;
 	old_channel->addUser(this, false);
 	this->addMsg("you have joinned " + commands[1] + "\n");
+}
+
+void	Client::kickCMD(std::vector<std::string> commands) {
+
+	/* treat the errors (not in channel, arguments error, not the admin) */
+	if (!_channel || commands.size() != 2 || !_channel->isAdmin(this)) {
+
+		if (commands.size() != 2)
+			this->addMsg("\x1B[31m/kick <nickname>\x1B[0m\n");
+		else if (!_channel)
+			this->addMsg("\x1B[31merror: you have to be admin in a channel\x1B[0m\n");
+		else if (!_channel->isAdmin(this))
+			this->addMsg("\x1B[31merror: you have to be admin\x1B[0m\n");
+		return ;
+	}
+	if (!_channel->isInChannel(commands[1]))
+		this->addMsg("\x1B[31merror: " + commands[1] + ": user not found\x1B[0m\n");
+	else
+		_channel->kickUser(_channel->isInChannel(commands[1]));
+}
+
+void	Client::topicCMD(std::vector<std::string> commands) {
+
+	/* treat the errors (not in channel, not the admin) */
+	if (!_channel || !_channel->isAdmin(this)) {
+		if (!_channel)
+			this->addMsg("\x1B[31merror: you have to be admin in a channel\x1B[0m\n");
+		else if (!_channel->isAdmin(this))
+			this->addMsg("\x1B[31merror: you have to be admin\x1B[0m\n");
+		return ;
+	}
+	if (commands.size() == 1)
+		this->addMsg("topic: " + _channel->getTopic() + "\n");
+	else {
+		std::string	newTopic = "";
+		for (int i = 1; i < (int)commands.size(); i++) {
+			if (i != 1 && i < (int)commands.size())
+				newTopic += " ";
+			newTopic += commands[i];
+		}
+		newTopic += ".";
+		_channel->setTopic(newTopic);
+	}
 }

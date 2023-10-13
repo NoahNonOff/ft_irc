@@ -83,7 +83,7 @@ void	Server::run(void) {
 				max_sd = sd;
 		}
 
-		activity = select(max_sd + 1, &this->_readfds, &this->_writefds, NULL, &tv);
+		activity = select(max_sd + 1, &this->_readfds, &this->_writefds, NULL, NULL);
 		if (activity < 0 && errno != EINTR)
 			throw Server::run_error((char *)"select failed");
 
