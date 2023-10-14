@@ -1,7 +1,7 @@
 // client.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 13-oct-2023
+// Date: 14-oct-2023
 
 #include "irc.hpp"
 
@@ -31,6 +31,7 @@ Client::Client(int const clt_fd, std::string const &nickname) : _fd(clt_fd), _ni
 	_username = "lil'one";
 	_validated = false;
 	_validateTry = 3;
+	_channelAccess = true;
 
 	_is_msg = false;
 	_msg_to_send = "";
@@ -42,8 +43,10 @@ Client::Client(int const clt_fd, std::string const &nickname) : _fd(clt_fd), _ni
 
 Client::~Client() {
 	std::cout << _username << " (" << _fd << "): quit the server" << std::endl;
-	if (_channel)
+	if (_channel) {
+		_channel->broadcast("", this);
 		_channel->removeUser(this);
+	}
 	close(_fd);
 }
 
@@ -56,11 +59,23 @@ bool	Client::treatRequest(std::string const &request, Server *server) {
 
 	if (is_request(request))
 		ret = this->executeCommand(request, server);
+	// else if (_channel && !_channelAccess)
+	// 	this->accessToChannel(request);
 	else
 		this->launchMessage(request);
 
 	return ret;
 }
+
+// void	Client::accessToChannel(std::string const &request) {
+
+// 	if (!_channel->getPassword().compare(request)) {
+// 		/* good password */
+// 		_channelAccess = true;
+// 		// tell the channel to add the user
+// 		this->addMsg("\x1B[35mgood password, you are now connected to the channel\x1B[0m\n")
+// 	}
+// }
 
 bool	Client::secure_connection(std::string const &request, std::string const &password) {
 
@@ -100,6 +115,8 @@ bool	Client::executeCommand(std::string const &command, Server *server) {
 		this->kickCMD(commands);
 	else if (!commands[0].compare("topic"))
 		this->topicCMD(commands);
+	else if (!commands[0].compare("list"))
+		this->listCMD(server);
 
 	else if (!commands[0].compare("nick"))
 		this->nickCMD(commands, server);
@@ -107,8 +124,9 @@ bool	Client::executeCommand(std::string const &command, Server *server) {
 		this->chatCMD(commands, server);
 	else if (!commands[0].compare("join"))
 		this->joinCMD(commands, server);
-	else if (!commands[0].compare("list"))
-		this->listCMD(server);
+	else if (!commands[0].compare("mode"))
+		this->modeCMD(commands, server);
+
 	else
 		this->addMsg("\x1B[31merror: " + commands[0] + ": command not found\x1B[0m\n");
 	return true;
@@ -266,8 +284,9 @@ void	Client::joinCMD(std::vector<std::string> commands, Server *server) {
 	}
 	/* join a channel with regular right */
 	this->quitChannel();
+	if (!old_channel->addUser(this, false))
+		return ;
 	_channel = old_channel;
-	old_channel->addUser(this, false);
 	this->addMsg("you have joinned " + commands[1] + "\n");
 }
 
@@ -278,10 +297,8 @@ void	Client::kickCMD(std::vector<std::string> commands) {
 
 		if (commands.size() != 2)
 			this->addMsg("\x1B[31m/kick <nickname>\x1B[0m\n");
-		else if (!_channel)
-			this->addMsg("\x1B[31merror: you have to be admin in a channel\x1B[0m\n");
-		else if (!_channel->isAdmin(this))
-			this->addMsg("\x1B[31merror: you have to be admin\x1B[0m\n");
+		else
+			this->addMsg("\x1B[31merror: you have to be operator in a channel\x1B[0m\n");
 		return ;
 	}
 	if (!_channel->isInChannel(commands[1]))
@@ -292,12 +309,9 @@ void	Client::kickCMD(std::vector<std::string> commands) {
 
 void	Client::topicCMD(std::vector<std::string> commands) {
 
-	/* treat the errors (not in channel, not the admin) */
-	if (!_channel || !_channel->isAdmin(this)) {
-		if (!_channel)
-			this->addMsg("\x1B[31merror: you have to be admin in a channel\x1B[0m\n");
-		else if (!_channel->isAdmin(this))
-			this->addMsg("\x1B[31merror: you have to be admin\x1B[0m\n");
+	/* treat the errors (not in channel, not the admin and restriction) */
+	if (!_channel || (!_channel->isAdmin(this) && _channel->getTopicRestriction())) {
+		this->addMsg("\x1B[31merror: you have to be operator in a channel\x1B[0m\n");
 		return ;
 	}
 	if (commands.size() == 1)
@@ -312,4 +326,26 @@ void	Client::topicCMD(std::vector<std::string> commands) {
 		newTopic += ".";
 		_channel->setTopic(newTopic);
 	}
+}
+
+void	Client::modeCMD(std::vector<std::string> commands, Server *server) {
+
+	(void)server;
+	if (commands.size() < 2) {
+
+		this->addMsg("\x1B[31m/mode <options>\x1B[0m\n");
+		return ;
+	}
+	if (!_channel || !_channel->isAdmin(this)) {
+		this->addMsg("\x1B[31merror: you have to be operator in a channel\x1B[0m\n");
+		return ;
+	}
+	if (!commands[1].compare("o"))
+		_channel->mode_o(commands, this);
+	else if (!commands[1].compare("l"))
+		_channel->mode_l(commands, this);
+	else if (!commands[1].compare("t"))
+		_channel->mode_t();
+	else
+		this->addMsg("\x1B[31merror: " + commands[1] + ": option not found\x1B[0m\n");
 }

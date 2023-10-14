@@ -26,6 +26,7 @@ class Client
 		std::string			_msg_to_send;
 
 		Channel				*_channel; /* actual channel */
+		bool				_channelAccess;
 
 	public:
 		Client( int, std::string const & );
@@ -64,6 +65,7 @@ class Client
 		void	nickCMD( std::vector<std::string>, Server * );
 		void	chatCMD( std::vector<std::string>, Server * );
 		void	joinCMD( std::vector<std::string>, Server * );
+		void	modeCMD( std::vector<std::string>, Server * );
 };
 
 #endif

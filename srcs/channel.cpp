@@ -1,11 +1,12 @@
 // channel.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 13-oct-2023
+// Date: 14-oct-2023
 
 #include "irc.hpp"
 
 /* ---------------------------------- Set and Get ---------------------------------- */
+bool const	&Channel::getTopicRestriction( void ) const { return _topicRestriction; }
 std::string	const &Channel::getName(void) const { return _name; }
 std::string	const &Channel::getTopic( void ) const { return _topic; }
 std::string	const &Channel::getPassword( void ) const { return _password; }
@@ -17,6 +18,7 @@ void	Channel::setTopic(std::string const &n) { _topic = n; }
 Channel::Channel(std::string const &name) : _name(name) {
 	/* initiate the channel */
 	_password = "";
+	_topicRestriction = true;
 	_topic = "no topic yet";
 	_userLimit = 0;
 	_inviteOnly = false;
@@ -43,11 +45,17 @@ void	Channel::kickUser(Client *clt) {
 	removeUser(clt);
 }
 
-void	Channel::addUser(Client *clt, bool admin) {
+bool	Channel::addUser(Client *clt, bool admin) {
 
 	if (_admin.find(clt) != _admin.end())
-		return ;
-	_admin[clt] = admin;
+		return true;
+	if (!_userLimit || _userLimit > (int)_admin.size()) {
+		_admin[clt] = admin;
+		return true;
+	}
+	else
+		clt->addMsg("\x1B[31merror: too many people in the server\x1B[0m\n");
+	return false;
 }
 
 void	Channel::broadcast(std::string const &msg, Client *clt) {
@@ -79,3 +87,41 @@ Client	*Channel::isInChannel(std::string const &name) {
 			return it->first;
 	return NULL;
 }
+
+/* ----------------------------------- options ----------------------------------- */
+
+void	Channel::mode_t(void) { _topicRestriction = _topicRestriction ? false : true; }
+
+void	Channel::mode_o(std::vector<std::string> commands, Client *clt) {
+
+	Client	*target = NULL;
+	if (commands.size() != 3) {
+		clt->addMsg("\x1B[31m/mode o <nickname>\x1B[0m\n");
+		return ;
+	}
+	if ((target = this->isInChannel(commands[2])))
+		_admin[target] = this->isAdmin(target) ? false : true; 
+	else
+		clt->addMsg("\x1B[31merror: " + commands[2] + ": user not found\x1B[0m\n");
+}
+
+void	Channel::mode_l(std::vector<std::string> commands, Client *clt) {
+
+	int	num = 0;
+	if (commands.size() == 2) {
+		_userLimit = 0;
+		clt->addMsg("the user limit was removed\n");
+		return ;
+	}
+	try {
+		num = _stoi(commands[2]);
+	} catch (std::length_error &error) {
+		clt->addMsg("\x1B[31merror: " + commands[2] + ": bad number\x1B[0m\n");
+	}
+	std::cout << _admin.size() << std::endl;
+	if (num < (int)_admin.size())
+		clt->addMsg("\x1B[31merror: too many person are already in the server\x1B[0m\n");
+	else
+		_userLimit = num;
+}
+

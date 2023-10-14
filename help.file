@@ -29,12 +29,12 @@ You can only have two roles in the server: operator and regular. As operator, yo
 	/kick <nickname> -> eject a client from the channel
 ~	/invite <nickname> -> invite someone to join the channel
 	/topic (<new_topic>) -> change or view the channel topic
-~	/mode <option> -> change the channel's mode
+	/mode <option> -> change the channel's mode
 
 MODE options:
 ~	i : set/remove Invite-only
-~	t : set/remove the topic command restriction
+	t : set/remove the topic command restriction
 ~	k : set/remove the channel-key
-~	o : give/take the channel operator privilege
-~	l : set/remove the user limit to channel
+	o : give/take the channel operator privilege
+	l : set/remove the user limit to channel
 
