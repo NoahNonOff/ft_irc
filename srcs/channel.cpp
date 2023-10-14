@@ -6,11 +6,12 @@
 #include "irc.hpp"
 
 /* ---------------------------------- Set and Get ---------------------------------- */
-bool const	&Channel::getTopicRestriction( void ) const { return _topicRestriction; }
+bool const	&Channel::getTopicRestriction(void) const { return _topicRestriction; }
+bool const	&Channel::getInviteRestriction(void) const { return _inviteOnly; }
 std::string	const &Channel::getName(void) const { return _name; }
-std::string	const &Channel::getTopic( void ) const { return _topic; }
-std::string	const &Channel::getPassword( void ) const { return _password; }
-std::map<Client *, bool> const &Channel::getAdmin( void ) const { return _admin; }
+std::string	const &Channel::getTopic(void) const { return _topic; }
+std::string	const &Channel::getPassword(void) const { return _password; }
+std::map<Client *, bool> const &Channel::getAdmin(void) const { return _admin; }
 
 void	Channel::setTopic(std::string const &n) { _topic = n; }
 
@@ -91,6 +92,14 @@ Client	*Channel::isInChannel(std::string const &name) {
 /* ----------------------------------- options ----------------------------------- */
 
 void	Channel::mode_t(void) { _topicRestriction = _topicRestriction ? false : true; }
+
+void	Channel::mode_i(Client *clt) {
+	if (_inviteOnly)
+		clt->addMsg("you remove invite only mode\n");
+	else
+		clt->addMsg("you set invite only mode\n");
+	_inviteOnly = _inviteOnly ? false : true;
+}
 
 void	Channel::mode_k(std::vector<std::string> commands, Client *clt) {
 

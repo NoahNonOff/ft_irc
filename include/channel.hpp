@@ -30,6 +30,7 @@ class Channel
 		~Channel();
 
 		bool const	&getTopicRestriction( void ) const;
+		bool const	&getInviteRestriction( void ) const;
 		std::string const	&getName( void ) const;
 		std::string	const	&getTopic( void ) const;
 		std::string	const	&getPassword( void ) const;
@@ -46,6 +47,7 @@ class Channel
 
 		/* options mode */
 		void	mode_t( void );
+		void	mode_i( Client * );
 		void	mode_k( std::vector<std::string>, Client * );
 		void	mode_o( std::vector<std::string>, Client * );
 		void	mode_l( std::vector<std::string>, Client * );

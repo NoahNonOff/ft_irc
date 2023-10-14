@@ -120,15 +120,17 @@ bool	Client::executeCommand(std::string const &command, Server *server) {
 		this->topicCMD(commands);
 	else if (!commands[0].compare("list"))
 		this->listCMD(server);
+	else if (!commands[0].compare("mode"))
+		this->modeCMD(commands);
 
 	else if (!commands[0].compare("nick"))
 		this->nickCMD(commands, server);
+	else if (!commands[0].compare("invite"))
+		this->inviteCMD(commands, server);
 	else if (!commands[0].compare("chat"))
 		this->chatCMD(commands, server);
 	else if (!commands[0].compare("join"))
 		this->joinCMD(commands, server);
-	else if (!commands[0].compare("mode"))
-		this->modeCMD(commands, server);
 
 	else
 		this->addMsg("\x1B[31merror: " + commands[0] + ": command not found\x1B[0m\n");
@@ -258,41 +260,26 @@ void	Client::listCMD(Server *server) {
 	this->addMsg("\x1B[0m");
 }
 
-void	Client::joinCMD(std::vector<std::string> commands, Server *server) {
+void	Client::inviteCMD(std::vector<std::string> commands, Server *server) {
 
-	if (commands.size() != 2) {
-		this->addMsg("\x1B[31m/join <server_name>\x1B[0m\n");
+	/* treat the errors (not in channel, arguments error, not the admin) */
+	if (!_channel || commands.size() != 2 || !_channel->isAdmin(this)) {
+
+		if (commands.size() != 2)
+			this->addMsg("\x1B[31m/kick <nickname>\x1B[0m\n");
+		else
+			this->addMsg("\x1B[31merror: you have to be operator in a channel\x1B[0m\n");
 		return ;
 	}
-
-	/* if you try to connect to the server */
-	if (_channel && _channel->getName().compare(commands[1])) {
-		this->addMsg("You are already in the channel\n");
-		return ;
+	if (_channel->isInChannel(commands[1])) {
+		this->addMsg("error: " + commands[1] + ": user already in the channel\x1B[0m\n");
 	}
-
-	Channel	*old_channel = NULL;
-	std::vector<Channel *>	lst_channel = server->getChannel();
-	for (int i = 0; i < (int)lst_channel.size(); i++) {
-		if (!lst_channel[i]->getName().compare(commands[1]))
-			old_channel = lst_channel[i];
+	else {
+		Client *clt = server->isInServer(commands[1]);
+		if (!clt)
+			return ;
+		clt->invite(_channel->getName());
 	}
-	if (!old_channel) {
-		/* create the channel with admin right */
-		_channel = server->addChannel(commands[1]);
-		_channel->addUser(this, true);
-		this->addMsg("you have created " + commands[1] + "\n");
-		return ;
-	}
-	/* join a channel with regular right */
-	this->quitChannel();
-	_channel = old_channel;
-	if (old_channel->getPassword().size() > 0) {
-		_channelAccess = false;
-		this->addMsg("\x1B[35m[" + old_channel->getName() + "]: please enter the password:\x1B[0m\n");
-	}
-	else if (old_channel->addUser(this, false))
-		this->addMsg("you have joinned " + commands[1] + "\n");
 }
 
 void	Client::kickCMD(std::vector<std::string> commands) {
@@ -333,9 +320,8 @@ void	Client::topicCMD(std::vector<std::string> commands) {
 	}
 }
 
-void	Client::modeCMD(std::vector<std::string> commands, Server *server) {
+void	Client::modeCMD(std::vector<std::string> commands) {
 
-	(void)server;
 	if (commands.size() < 2) {
 
 		this->addMsg("\x1B[31m/mode <options>\x1B[0m\n");
@@ -353,6 +339,75 @@ void	Client::modeCMD(std::vector<std::string> commands, Server *server) {
 		_channel->mode_k(commands, this);
 	else if (!commands[1].compare("t"))
 		_channel->mode_t();
+	else if (!commands[1].compare("i"))
+		_channel->mode_i(this);
 	else
 		this->addMsg("\x1B[31merror: " + commands[1] + ": option not found\x1B[0m\n");
+}
+
+void	Client::joinCMD(std::vector<std::string> commands, Server *server) {
+
+	if (commands.size() != 2) {
+		this->addMsg("\x1B[31m/join <server_name>\x1B[0m\n");
+		return ;
+	}
+
+	if (_channel && _channel->getName().compare(commands[1])) {
+		this->addMsg("You are already in the channel\n");
+		return ;
+	}
+
+	Channel	*old_channel = NULL;
+	std::vector<Channel *>	lst_channel = server->getChannel();
+	for (int i = 0; i < (int)lst_channel.size(); i++)
+		if (!lst_channel[i]->getName().compare(commands[1]))
+			old_channel = lst_channel[i];
+
+	if (!old_channel)
+		this->createChannel(commands[1], server);
+	else
+		this->joinChannel(old_channel);
+}
+
+void	Client::createChannel(std::string const &name, Server *server) {
+
+	_channel = server->addChannel(name);
+	_channel->addUser(this, true);
+	this->addMsg("you have created " + name + "\n");
+}
+
+void	Client::joinChannel(Channel *new_channel) {
+
+	this->quitChannel();
+	if (new_channel->getInviteRestriction() && !isInvite(new_channel->getName()) && !new_channel->isInChannel(_nickname)) {
+		this->addMsg("\x1B[31merror: you have to be invite in this server\x1B[0m\n");
+		return ;
+	}
+	_channel = new_channel;
+	if (new_channel->getPassword().size() > 0) {
+		_channelAccess = false;
+		this->addMsg("\x1B[35m[" + new_channel->getName() + "]: please enter the password:\x1B[0m\n");
+	}
+	else if (new_channel->addUser(this, false))
+		this->addMsg("you have joinned " + new_channel->getName() + "\n");
+}
+
+bool	Client::isInvite(std::string const &name) {
+	for (int i = 0; i < (int)_invitation.size(); i++) {
+		if (!_invitation[i].compare(name)) {
+			_invitation.erase(_invitation.begin() + i);
+			return true;
+		}
+	}
+	return false;
+}
+
+void	Client::invite(std::string const &channel_name) {
+
+	for (int i = 0; i < (int)_invitation.size(); i++) {
+		if (!_invitation[i].compare(channel_name))
+			return ;
+	}
+	_invitation.push_back(channel_name);
+	this->addMsg("You have been invite in " + channel_name + "\n");
 }

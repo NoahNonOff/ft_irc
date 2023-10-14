@@ -1,7 +1,7 @@
 // server.hpp
 //
 // Author: Noah BEAUFILS
-// Date: 12-oct-2023
+// Date: 14-oct-2023
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
@@ -34,14 +34,15 @@ class Server
 		std::map<int, Client *> const &getClients( void ) const;
 		std::vector<Channel *> const &getChannel( void ) const;
 
-		void	run( void );
-		void	addClient( void );
-		bool	removeClient( int );
-		bool	readFromClient( int );
-		void	sendToClient( int );
+		void		run( void );
+		void		addClient( void );
+		bool		removeClient( int );
+		bool		readFromClient( int );
+		void		sendToClient( int );
+		bool		isAlreadyTaken( std::string const & );
+		Client		*isInServer( std::string const & );
+		Channel		*addChannel( std::string const & );
 		std::string	giveNickname( void );
-		bool	isAlreadyTaken( std::string const & );
-		Channel	*addChannel( std::string const & );
 
 		class	init_error : public std::exception {
 			private:

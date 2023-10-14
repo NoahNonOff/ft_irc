@@ -14,19 +14,20 @@ class Channel;
 class Client
 {
 	private:
-		int const 			_fd;
+		int const 					_fd;
 
-		std::string			_username; /* whatever you want */
-		std::string			_nickname; /* unique across the server */
+		std::string					_username; /* whatever you want */
+		std::string					_nickname; /* unique across the server */
 
-		bool				_validated; /* does the client enter the password */
-		short				_validateTry; /* remainning tries */
+		bool						_validated; /* does the client enter the password */
+		short						_validateTry; /* remainning tries */
 
-		bool				_is_msg;
-		std::string			_msg_to_send;
+		bool						_is_msg;
+		std::string					_msg_to_send;
 
-		Channel				*_channel; /* actual channel */
-		bool				_channelAccess;
+		Channel						*_channel; /* actual channel */
+		bool						_channelAccess;
+		std::vector<std::string>	_invitation;
 
 	public:
 		Client( int, std::string const & );
@@ -62,11 +63,17 @@ class Client
 		void	listCMD( Server * );
 		void	nameCMD( std::vector<std::string> );
 		void	kickCMD( std::vector<std::string> );
+		void	modeCMD( std::vector<std::string> );
 		void	topicCMD( std::vector<std::string> );
 		void	nickCMD( std::vector<std::string>, Server * );
 		void	chatCMD( std::vector<std::string>, Server * );
 		void	joinCMD( std::vector<std::string>, Server * );
-		void	modeCMD( std::vector<std::string>, Server * );
+		void	inviteCMD( std::vector<std::string>, Server * );
+
+		void	createChannel( std::string const &, Server * );
+		void	joinChannel( Channel * );
+		bool	isInvite( std::string const & );
+		void	invite( std::string const & );
 };
 
 #endif

@@ -188,3 +188,10 @@ Channel	*Server::addChannel(std::string const &name) {
 	_channels.push_back(new_channel);
 	return new_channel;
 }
+
+Client	*Server::isInServer(std::string const &name) {
+	for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+		if (!name.compare(it->second->getNickname()))
+			return it->second;
+	return NULL;
+}
