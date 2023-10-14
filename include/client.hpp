@@ -1,7 +1,7 @@
 // client.hpp
 //
 // Author: Noah BEAUFILS
-// Date: 13-oct-2023
+// Date: 14-oct-2023
 
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
@@ -47,6 +47,7 @@ class Client
 		void	setMp(std::string const &msg, std::string const &src);
 
 		bool	treatRequest( std::string const &, Server * );
+		void	accessToChannel( std::string const & );
 		bool	secure_connection( std::string const &, std::string const & );
 		bool	executeCommand( std::string const &, Server * );
 		void	launchMessage(std::string const &request);

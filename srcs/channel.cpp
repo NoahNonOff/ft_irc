@@ -53,8 +53,8 @@ bool	Channel::addUser(Client *clt, bool admin) {
 		_admin[clt] = admin;
 		return true;
 	}
-	else
-		clt->addMsg("\x1B[31merror: too many people in the server\x1B[0m\n");
+	clt->addMsg("\x1B[31merror: too many people in the server\x1B[0m\n");
+	clt->setChannel(NULL);
 	return false;
 }
 
@@ -91,6 +91,17 @@ Client	*Channel::isInChannel(std::string const &name) {
 /* ----------------------------------- options ----------------------------------- */
 
 void	Channel::mode_t(void) { _topicRestriction = _topicRestriction ? false : true; }
+
+void	Channel::mode_k(std::vector<std::string> commands, Client *clt) {
+
+	if (commands.size() == 2) {
+		_password = "";
+		clt->addMsg("the channel-key was removed\n");
+		return ;
+	}
+	_password = commands[2];
+	clt->addMsg("the channel-key is now " + commands[2] + "\n");
+}
 
 void	Channel::mode_o(std::vector<std::string> commands, Client *clt) {
 

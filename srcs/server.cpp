@@ -1,7 +1,7 @@
 // server.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 12-oct-2023
+// Date: 14-oct-2023
 
 #include "irc.hpp"
 
@@ -150,7 +150,6 @@ bool	Server::readFromClient(int sd) {
 
 void	Server::addClient(void) {
 
-	std::cout << "someone wants to connect to the server" << std::endl;
 
 	/* accept the client */
 	socklen_t	addr_len = sizeof(_sockAddr);
@@ -160,6 +159,7 @@ void	Server::addClient(void) {
 		throw Server::run_error((char *)"failed during acceptation");
 
 	/* add the new socket to the socket_set */
+	std::cout << "a new user (" << new_socket << ") is now connected to the server" << std::endl;
 	this->_clients[new_socket] = new Client(new_socket, this->giveNickname());
 	_numClient++;
 }

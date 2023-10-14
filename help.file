@@ -1,7 +1,7 @@
 // help.file
 //
 // Author: Noah BEAUFILS
-// Date: 10-oct-2023
+// Date: 14-oct-2023
 
 Once connected, you can run commands using '/' followed by the command name and theirs arguments.
 There is two type of message you can received:
@@ -34,7 +34,7 @@ You can only have two roles in the server: operator and regular. As operator, yo
 MODE options:
 ~	i : set/remove Invite-only
 	t : set/remove the topic command restriction
-~	k : set/remove the channel-key
+	k : set/remove the channel-key
 	o : give/take the channel operator privilege
 	l : set/remove the user limit to channel
 

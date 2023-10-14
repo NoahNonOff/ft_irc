@@ -1,7 +1,7 @@
 // channel.hpp
 //
 // Author: Noah BEAUFILS
-// Date: 13-oct-2023
+// Date: 14-oct-2023
 
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
@@ -46,6 +46,7 @@ class Channel
 
 		/* options mode */
 		void	mode_t( void );
+		void	mode_k( std::vector<std::string>, Client * );
 		void	mode_o( std::vector<std::string>, Client * );
 		void	mode_l( std::vector<std::string>, Client * );
 };

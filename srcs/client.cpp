@@ -57,25 +57,28 @@ bool	Client::treatRequest(std::string const &request, Server *server) {
 	if (!_validated)
 		return this->secure_connection(request, server->getPassword());
 
-	if (is_request(request))
+	if (_channel && !_channelAccess)
+		this->accessToChannel(request);
+	else if (is_request(request))
 		ret = this->executeCommand(request, server);
-	// else if (_channel && !_channelAccess)
-	// 	this->accessToChannel(request);
 	else
 		this->launchMessage(request);
 
 	return ret;
 }
 
-// void	Client::accessToChannel(std::string const &request) {
+void	Client::accessToChannel(std::string const &request) {
 
-// 	if (!_channel->getPassword().compare(request)) {
-// 		/* good password */
-// 		_channelAccess = true;
-// 		// tell the channel to add the user
-// 		this->addMsg("\x1B[35mgood password, you are now connected to the channel\x1B[0m\n")
-// 	}
-// }
+	_channelAccess = true;
+	if (_channel->getPassword().compare(request)) {
+		_channel = NULL;
+		this->addMsg("\x1B[35mbad password, connection with the channel failed\x1B[0m\n");
+	}
+	else {
+		_channel->addUser(this, false);
+		this->addMsg("\x1B[35mgood password, you are now connected to the channel\x1B[0m\n");
+	}
+}
 
 bool	Client::secure_connection(std::string const &request, std::string const &password) {
 
@@ -226,7 +229,6 @@ void	Client::chatCMD(std::vector<std::string> commands, Server *server) {
 	}
 	std::map<int, Client *>::const_iterator	it = server->getClients().begin();
 	for (; it != server->getClients().end(); ++it) {
-		std::cout << it->second->getNickname() << " " << commands[1] << " " << it->second->getNickname().compare(commands[1]) << std::endl;
 		if (!it->second->getNickname().compare(commands[1])) {
 
 			/* set the message */
@@ -284,10 +286,13 @@ void	Client::joinCMD(std::vector<std::string> commands, Server *server) {
 	}
 	/* join a channel with regular right */
 	this->quitChannel();
-	if (!old_channel->addUser(this, false))
-		return ;
 	_channel = old_channel;
-	this->addMsg("you have joinned " + commands[1] + "\n");
+	if (old_channel->getPassword().size() > 0) {
+		_channelAccess = false;
+		this->addMsg("\x1B[35m[" + old_channel->getName() + "]: please enter the password:\x1B[0m\n");
+	}
+	else if (old_channel->addUser(this, false))
+		this->addMsg("you have joinned " + commands[1] + "\n");
 }
 
 void	Client::kickCMD(std::vector<std::string> commands) {
@@ -344,6 +349,8 @@ void	Client::modeCMD(std::vector<std::string> commands, Server *server) {
 		_channel->mode_o(commands, this);
 	else if (!commands[1].compare("l"))
 		_channel->mode_l(commands, this);
+	else if (!commands[1].compare("k"))
+		_channel->mode_k(commands, this);
 	else if (!commands[1].compare("t"))
 		_channel->mode_t();
 	else
