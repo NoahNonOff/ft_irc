@@ -1,7 +1,7 @@
 // channel.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 14-oct-2023
+// Date: 15-oct-2023
 
 #include "irc.hpp"
 
@@ -64,14 +64,15 @@ void	Channel::broadcast(std::string const &msg, Client *clt) {
 	std::map<Client *, bool>::iterator	it = _admin.begin();
 	if (msg.size() < 1) {
 		for (;it != _admin.end(); it++) {
-			if (it->first == clt)
+			if (it->first == clt || it->first->getChannel() != this)
 				continue ;
 			it->first->addMsg(clt->getUsername() + " quit the channel\n");
 		}
 	}
 	else
 		for (;it != _admin.end(); it++)
-			it->first->addMsg("[public]" + clt->getUsername() + ": " + msg + "\n");
+			if (it->first->getChannel() == this)
+				it->first->addMsg("[public]" + clt->getUsername() + ": " + msg + "\n");
 }
 
 bool	Channel::isAdmin(Client *clt) {

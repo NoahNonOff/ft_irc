@@ -1,7 +1,7 @@
 // client.hpp
 //
 // Author: Noah BEAUFILS
-// Date: 14-oct-2023
+// Date: 15-oct-2023
 
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
@@ -34,6 +34,7 @@ class Client
 		~Client();
 
 		int const &getFd( void ) const;
+		Channel *getChannel( void ) const;
 		std::string const &getUsername( void ) const;
 		std::string const &getNickname( void ) const;
 		std::string const &getMsg( void ) const;

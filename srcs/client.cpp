@@ -1,7 +1,7 @@
 // client.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 14-oct-2023
+// Date: 15-oct-2023
 
 #include "irc.hpp"
 
@@ -9,6 +9,7 @@
 int const	&Client::getFd(void) const { return _fd; }
 bool const	&Client::getValidation(void) const { return _validated; }
 bool const	&Client::getWritting(void) const { return _is_msg; }
+Channel *Client::getChannel(void) const { return _channel; }
 std::string const	&Client::getMsg(void) const { return _msg_to_send; }
 std::string const	&Client::getUsername(void) const { return _username; }
 std::string const	&Client::getNickname(void) const { return _nickname; }
@@ -183,11 +184,12 @@ void	Client::usersCMD(void) {
 	for (; it != lst_client.end(); ++it) {
 		if (it->first == this) {
 			info = "\x1B[35muser: " + it->first->getNickname() \
-			+ "::" + it->first->getUsername() + "::" + (it->second ? "admin" : "regular") + "\x1B[0m\n";
+			+ "::" + it->first->getUsername() + "::" + (it->second ? "admin" : "regular") + "::in\x1B[0m\n";
 		}
 		else {
-			info = "user: " + it->first->getNickname() \
-			+ "::" + it->first->getUsername() + "::" + (it->second ? "admin" : "regular") + "\n";
+			info = "user: " + it->first->getNickname() + "::" + it->first->getUsername() + \
+			"::" + (it->second ? "admin" : "regular") + "::" + \
+			(it->first->getChannel() == _channel ? "in" : "out") + "\n";
 		}
 		this->addMsg(info);
 	}
@@ -315,7 +317,6 @@ void	Client::topicCMD(std::vector<std::string> commands) {
 				newTopic += " ";
 			newTopic += commands[i];
 		}
-		newTopic += ".";
 		_channel->setTopic(newTopic);
 	}
 }
@@ -352,7 +353,7 @@ void	Client::joinCMD(std::vector<std::string> commands, Server *server) {
 		return ;
 	}
 
-	if (_channel && _channel->getName().compare(commands[1])) {
+	if (_channel && !_channel->getName().compare(commands[1])) {
 		this->addMsg("You are already in the channel\n");
 		return ;
 	}
