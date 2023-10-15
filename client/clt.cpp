@@ -90,10 +90,12 @@ void	Clt::treatChar(void) {
 	}
 	else if (c == 127)
 		this->do_backspace();
-	else {
+	else if (c >= 32 && c <= 126) {
 		_prompt += c;
 		std::cout << c;
 	}
+	else if (c == '\033')
+		read(0, buff, 2);
 	fflush(stdout);
 	tcsetattr(STDIN_FILENO, TCSANOW, &_newt);
 }
