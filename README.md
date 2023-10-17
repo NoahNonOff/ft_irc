@@ -50,6 +50,9 @@ while (true) {
 (3) Important thing, [to avoid an explosion of our CPU usage](https://stackoverflow.com/questions/19738300/what-is-the-issue-of-select-using-so-much-cpu-power), simply define in `writefds` the fd witch must write.<br>
 (4) After we have to check the result of select: if the server fd is ready to read, it means a client want to connect to the server.<br>
 (5) We just have to check if we can read or write in our fd_list.<br>
+### Documentation
+[Internet Relay Chat: Client Protocol](https://www.rfc-editor.org/rfc/rfc2812")<br>
+[Understand socket programming](http://vidalc.chez.com/lf/socket.html#lowlevel)<br>
 
 ![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)
 
