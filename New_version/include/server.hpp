@@ -8,7 +8,7 @@
 
 # include "irc.hpp"
 
-class client;
+class Client;
 
 class Server
 {

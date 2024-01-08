@@ -160,6 +160,6 @@ void	Server::addClient(void) {
 
 	/* add the new socket to the socket_set */
 	std::cout << "a new user (" << new_socket << ") is now connected to the server" << std::endl;
-	this->_clients[new_socket] = new Client(new_socket, this->giveNickname());
+	this->_clients[new_socket] = new Client(new_socket, "aa");
 	_numClient++;
 }

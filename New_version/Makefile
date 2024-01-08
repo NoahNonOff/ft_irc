@@ -20,7 +20,7 @@ CPPFLAGS = -Wall -Wextra -Werror -std=c++98 $(DEBUG)
 NAME = ft_irc
 
 %.o : %.cpp
-	$(CC) $(CPPFLAGS) $(INCLUDE) -c $<
+	$(CC) $(CPPFLAGS) $(INCLUDE) -c $< -o ${<:.cpp=.o}
 
 all: $(NAME)
 

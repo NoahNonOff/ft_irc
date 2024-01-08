@@ -28,7 +28,7 @@
 
 // # include "channel.hpp"
 # include "server.hpp"
-// # include "client.hpp"
+# include "client.hpp"
 
 /* --------------------- macros -------------------- */
 

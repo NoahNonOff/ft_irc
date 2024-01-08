@@ -44,10 +44,10 @@ Client::Client(int const clt_fd, std::string const &nickname) : _fd(clt_fd), _ni
 
 Client::~Client() {
 	std::cout << _username << " (" << _fd << "): quit the server" << std::endl;
-	if (_channel) {
-		// _channel->broadcast("", this);
-		// _channel->removeUser(this);
-	}
+	// if (_channel) {
+	// 	_channel->broadcast("", this);
+	// 	_channel->removeUser(this);
+	// }
 	close(_fd);
 }
 
