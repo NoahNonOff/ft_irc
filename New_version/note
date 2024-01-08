@@ -4,3 +4,6 @@ USER nbeaufil nbeaufil 127.0.0.1 :Noah Beaufils\n
 
 
 https://ircv3.net/specs/extensions/capability-negotiation.html
+
+-> to do:
+	- gerer les connections (NICK / USER) avec irssi
