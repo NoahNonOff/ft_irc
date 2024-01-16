@@ -141,9 +141,13 @@ bool	Server::readFromClient(int sd) {
 		return this->removeClient(sd);
 	else {
 		std::string	msg = _mtos(buff);
-		std::cout << msg << std::endl;
-		// if (!_clients[sd]->treatRequest(msg, this))
-		// 	return this->removeClient(sd);
+		std::cout << "<" << msg << ">" << std::endl;
+
+		// _clients[sd]->setWritting(true);
+		// _clients[sd]->setMsg("001 dan\r\n");
+
+		if (!_clients[sd]->treatRequest(msg, this))
+			return this->removeClient(sd);
 	}
 	return true;
 }
@@ -160,6 +164,6 @@ void	Server::addClient(void) {
 
 	/* add the new socket to the socket_set */
 	std::cout << "a new user (" << new_socket << ") is now connected to the server" << std::endl;
-	this->_clients[new_socket] = new Client(new_socket, "aa");
+	this->_clients[new_socket] = new Client(new_socket);
 	_numClient++;
 }

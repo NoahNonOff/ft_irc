@@ -5,5 +5,16 @@ USER nbeaufil nbeaufil 127.0.0.1 :Noah Beaufils\n
 
 https://ircv3.net/specs/extensions/capability-negotiation.html
 
--> to do:
-	- gerer les connections (NICK / USER) avec irssi
+http://abcdrfc.free.fr/rfc-vf/rfc1459.html#4
+
+Les messages IRC sont toujours des lignes de caractères terminés par une paire CR-LF (retour chariot - saut de ligne), et ces messages ne doivent pas dépasser 512 caractères de long, en comptant tous les caractères y compris le CR-LF final. Donc, il y a un maximum de 510 caractères autorisés pour la commande et ses paramètres. Il n'y a pas de système permettant une ligne de continuation de message. Voir la section 7 pour les implémentations actuelles.
+
+
+PASS <password>
+NICK
+USER
+
+PING
+PONG
+
+Upon receiving either a CAP LS or CAP REQ command during connection registration, the server MUST not complete registration until the client sends a CAP END command to indicate that capability negotiation has ended. This allows clients to request their desired capabilities before completing registration.

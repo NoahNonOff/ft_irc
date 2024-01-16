@@ -1,7 +1,7 @@
 // client.cpp
 //
 // Author: Noah BEAUFILS
-// Date: 8-jan-2024
+// Date: 16-jan-2024
 
 #include "irc.hpp"
 
@@ -26,9 +26,10 @@ void	Client::setMp(std::string const &msg, std::string const &src) {
 }
 
 /* ---------------------------------- Coplien's f. ---------------------------------- */
-Client::Client(int const clt_fd, std::string const &nickname) : _fd(clt_fd), _nickname(nickname) {
+Client::Client(int const clt_fd) : _fd(clt_fd) {
 
 	// _channel = NULL;
+	_nickname = "lil'one";
 	_username = "lil'one";
 	_validated = false;
 	_validateTry = 3;
@@ -36,10 +37,6 @@ Client::Client(int const clt_fd, std::string const &nickname) : _fd(clt_fd), _ni
 
 	_is_msg = false;
 	_msg_to_send = "";
-
-	/* send the first prompt */
-	std::string msg = "\x1B[35m\x1B[1mplease enter the password:\x1B[0m\n";
-	send(clt_fd, msg.c_str(), msg.size(), 0);
 }
 
 Client::~Client() {
@@ -52,3 +49,81 @@ Client::~Client() {
 }
 
 /* ----------------------------------- functions ----------------------------------- */
+
+bool	Client::treatRequest(std::string const &request, Server *server) {
+	
+	bool ret = true;
+	// if (!_validated)
+	// 	return this->secure_connection(request, server->getPassword());
+
+	// if (_channel && !_channelAccess)
+	// 	this->accessToChannel(request);
+	// else if (is_request(request))
+		ret = this->executeCommand(request, server);
+	// else
+	// 	this->launchMessage(request);
+
+	return ret;
+}
+
+bool	Client::executeCommand(std::string const &command, Server *server) {
+
+	std::vector<std::string>	commands = splitCmds(command);
+
+	(void)server;
+	if (commands.size() < 1)
+		return true;
+
+	if (!commands[0].compare("CAP"))
+		this->capCMD(commands);
+	else if (!commands[0].compare("PING"))
+		this->pingCMD(commands);
+	else if (!commands[0].compare("QUIT"))
+		return false;
+	// else if (!commands[0].compare("USER"))
+	// 	this->userCMD(commands);
+	// else if (!commands[0].compare("users"))
+	// 	this->usersCMD();
+	// else if (!commands[0].compare("part"))
+	// 	this->partCMD();
+
+	// else if (!commands[0].compare("help"))
+	// 	this->helpCMD();
+	// else if (!commands[0].compare("name"))
+	// 	this->nameCMD(commands);
+	// else if (!commands[0].compare("kick"))
+	// 	this->kickCMD(commands);
+	// else if (!commands[0].compare("topic"))
+	// 	this->topicCMD(commands);
+	// else if (!commands[0].compare("list"))
+	// 	this->listCMD(server);
+	// else if (!commands[0].compare("mode"))
+	// 	this->modeCMD(commands);
+
+	// else if (!commands[0].compare("nick"))
+	// 	this->nickCMD(commands, server);
+	// else if (!commands[0].compare("invite"))
+	// 	this->inviteCMD(commands, server);
+	// else if (!commands[0].compare("chat"))
+	// 	this->chatCMD(commands, server);
+	// else if (!commands[0].compare("join"))
+	// 	this->joinCMD(commands, server);
+
+	return true;
+}
+
+/* ----------------------------------- commands ------------------------------------ */
+
+void	Client::capCMD(std::vector<std::string> commands) {
+
+	(void)commands;
+	std::cout << "cap cmd" << std::endl;
+	this->addMsg("001 user\r\n");
+}
+
+void	Client::pingCMD(std::vector<std::string> commands) {
+
+	(void)commands;
+	std::cout << "ping cmd" << std::endl;
+	this->addMsg("pong\r\n");
+}

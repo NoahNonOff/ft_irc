@@ -57,7 +57,8 @@ static const std::string	lst_name[10] = {
 };
 
 /* -------------------- utils --------------------- */
-int				_stoi( std::string const & );
-std::string		_mtos( char * );
+int							_stoi( std::string const & );
+std::string					_mtos( char * );
+std::vector<std::string>	splitCmds( std::string const );
 
 #endif

@@ -29,7 +29,7 @@ class Client
 		std::vector<std::string>	_invitation;
 
 	public:
-		Client( int, std::string const & );
+		Client( int );
 		~Client();
 
 		int const &getFd( void ) const;
@@ -47,14 +47,16 @@ class Client
 		void	addMsg( std::string const & );
 		void	setMp(std::string const &msg, std::string const &src);
 
-		// bool	treatRequest( std::string const &, Server * );
+		bool	treatRequest( std::string const &, Server * );
 		// void	accessToChannel( std::string const & );
 		// bool	secure_connection( std::string const &, std::string const & );
-		// bool	executeCommand( std::string const &, Server * );
+		bool	executeCommand( std::string const &, Server * );
 		// void	launchMessage(std::string const &request);
 		// void	quitChannel( void );
 
 		/* Commands functions */
+		void capCMD( std::vector<std::string> );
+		void pingCMD( std::vector<std::string> );
 		// void	pingCMD( void );
 		// void	userCMD( void );
 		// void	usersCMD( void );
