@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Atype.hpp"
+#include "parser.hpp"
 
 namespace JSON {
 
@@ -15,6 +16,15 @@ namespace JSON {
 
 		public:
 			Object( void );
+			Object( const std::string & );
 			~Object( void );
+
+			void	parse( void );
+
+			void	removeBraces( void );
+			size_t	countKeys( void );
+			void	extractPair( const std::string &, size_t &, size_t &, size_t & );
+			std::string	getRawKey( const std::string &, size_t & );
+			Atype	*identify( const std::string & );
 	};
 }

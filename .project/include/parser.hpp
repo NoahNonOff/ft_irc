@@ -1,6 +1,9 @@
 #pragma once
 
 #include <iostream> /* debuggng */
+#include <fstream> /* ifstream */
+#include <sys/stat.h> /* stat */
+
 #include <map>
 #include <algorithm>
 
@@ -11,5 +14,15 @@
 
 namespace JSON {
 
-	Object	*parseFile(const std::string &filename);
+	class Object;
+
+	Object	*parseFile( const std::string & );
+	Object	*parseRaw( std::string & );
+
+	bool	isCorrectExt( const std::string & );
+	bool	fileExists( const std::string & );
 }
+
+/* utils */
+void	skipWhitespaces( const std::string &, size_t & );
+bool	isEscChar( const std::string &, size_t , char );
