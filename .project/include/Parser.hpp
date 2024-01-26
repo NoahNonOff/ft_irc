@@ -9,6 +9,7 @@
 
 #include "Atype.hpp"
 #include "Object.hpp"
+#include "String.hpp"
 
 /* --------------------------------------------------- */
 

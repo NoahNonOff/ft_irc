@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Atype.hpp"
-#include "parser.hpp"
+#include "Parser.hpp"
 
 namespace JSON {
 

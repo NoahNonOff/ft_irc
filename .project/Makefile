@@ -1,9 +1,14 @@
 JSON =	json-parser
 
 SRC =	main.cpp						\
-		${JSON}/parser.cpp				\
-		${JSON}/Object.cpp				\
+		${JSON}/Parser.cpp				\
 		${JSON}/Atype.cpp				\
+		${JSON}/Object.cpp				\
+		${JSON}/Array.cpp				\
+		${JSON}/String.cpp				\
+		${JSON}/Number.cpp				\
+		${JSON}/Null.cpp				\
+		${JSON}/Boolean.cpp				\
 
 OBJ = $(SRC:.cpp=.o)
 CC = c++

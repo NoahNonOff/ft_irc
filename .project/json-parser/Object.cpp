@@ -232,7 +232,7 @@ namespace JSON {
 	void	Object::parse(void) {
 
 		removeBraces();
-		
+
 		size_t	i = 0;
 		const std::string	&raw = getRaw();
 		const size_t		len = raw.length();

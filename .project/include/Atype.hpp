@@ -4,7 +4,7 @@
 
 namespace JSON {
 
-	enum type { e_object, e_array, e_string, e_number, e_boolen, e_null };
+	enum type { e_object, e_array, e_string, e_number, e_boolean, e_null };
 
 	class Atype
 	{
