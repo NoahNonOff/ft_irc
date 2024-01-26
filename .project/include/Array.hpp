@@ -8,7 +8,11 @@ namespace JSON {
 	class Array : public Atype {
 
 		private:
-			// to do
+			typedef std::vector<Atype *>::iterator	iterator;
+			typedef std::vector<Atype *>::const_iterator	const_iterator;
+
+		private:
+			std::vector<Atype *> _arr;
 
 		public:
 			Array( void );
@@ -16,5 +20,10 @@ namespace JSON {
 			~Array( void );
 
 			void	parse( void );
+
+			void			removeBraces( void );
+			const size_t	countElem( void );
+			string			getRawElem( const std::string &, size_t & );
+			AType			*identify( string & );
 	};
 }

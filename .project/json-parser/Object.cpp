@@ -1,12 +1,5 @@
 #include "Object.hpp"
 
-typedef struct objParse {
-	bool	dquote;
-	bool	squote;
-	int		inArray;
-	int		inObject;
-}	objParse;
-
 namespace JSON {
 
 	Object::Object(void) : Atype(e_object, "") {}
@@ -41,7 +34,7 @@ namespace JSON {
 		const std::string	&raw = getRaw();
 		const size_t		len = raw.length();
 
-		struct objParse		info = { false, false, 0, 0 };
+		struct Parse		info = { false, false, 0, 0 };
 
 		for (size_t i = 0; i < len; i++) {
 			switch (raw[i]) {
@@ -105,7 +98,7 @@ namespace JSON {
 
 	std::string	getRawValue(const std::string &raw, size_t &i) {
 
-		struct objParse		info = { false, false, 0, 0 };
+		struct Parse		info = { false, false, 0, 0 };
 		size_t				start = i;
 
 		for (; i < raw.length(); i++) {
@@ -238,7 +231,7 @@ namespace JSON {
 		const size_t		len = raw.length();
 		const size_t		nbKeys = countKeys();
 
-		for (size_t currentKey = 0; i < len && currentKey < nbKeys; currentKey++)
+		for (size_t currentKey = 1; i < len && currentKey < nbKeys; currentKey++)
 			extractPair(raw, i, currentKey, nbKeys);
 		skipWhitespaces(raw, i);
 		if (raw[i])

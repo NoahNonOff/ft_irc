@@ -4,6 +4,13 @@
 
 namespace JSON {
 
+	typedef struct Parse {
+		bool	dquote;
+		bool	squote;
+		int		inArray;
+		int		inObject;
+	}	Parse;
+
 	enum type { e_object, e_array, e_string, e_number, e_boolean, e_null };
 
 	class Atype
