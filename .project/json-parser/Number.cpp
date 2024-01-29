@@ -1,5 +1,7 @@
 #include "Number.hpp"
 
+#include <stdlib.h>
+
 namespace JSON {
 
 	Number::Number(void) : Atype(e_number, "") {}
@@ -12,13 +14,14 @@ namespace JSON {
 
 	void	Number::parse(void) {
 
-		try {
+		const std::string	&raw = getRaw();
+		char				*end = NULL;
+		double				num = std::strtod(raw.c_str(), &end);
 
-			const string &raw = getRaw();
-			_num = std::stod(raw);
-		}
-		catch (std::exception &e) {
-			throw AType::ParseException("Number: [" + e.what() + "] cannot convert " + raw);
-		}
+		std::string	e(end);
+		if (e != "" && e != "f")
+			throw Atype::parseException((std::string)"Number: cannot convert " + raw);
+
+		_num = num;
 	}
 }

@@ -105,19 +105,19 @@ namespace JSON {
 			switch (raw[i]) {
 				case '{' :
 					if (isEscChar(raw, i, '{'))
-						inObject++;
+						info.inObject++;
 					break ;
 				case '}' :
 					if (isEscChar(raw, i, '}'))
-						inObject--;
+						info.inObject--;
 					break ;
 				case '[' :
 					if (isEscChar(raw, i, '['))
-						inArray++;
+						info.inArray++;
 					break ;
 				case ']' :
 					if (isEscChar(raw, i, ']'))
-						inArray--;
+						info.inArray--;
 					break ;
 				case '\'' :
 					if (isEscChar(raw, i, '\''))
@@ -128,14 +128,14 @@ namespace JSON {
 						info.dquote = !info.dquote;
 					break ;
 				case ',' :
-					if (!inArray && !inObject && !info.squote && !info.dquote && 
+					if (!info.inArray && !info.inObject && !info.squote && !info.dquote && 
 						isEscChar(raw, i - 1, ','))
 						return raw.substr(start, i - start);
 				case ' ' :
 				case '\n' :
 				case '\r' :
 				case '\t' :
-					if (!inArray && !inObject && !info.squote && !info.dquote)
+					if (!info.inArray && !info.inObject && !info.squote && !info.dquote)
 						return raw.substr(start, i - start);
 			}
 		}
@@ -186,7 +186,7 @@ namespace JSON {
 		return ret;
 	}
 
-	void	Object::extractPair(const std::string &raw, size_t &i, size_t &currentKey, size_t &nbKeys) {
+	void	Object::extractPair(const std::string &raw, size_t &i, size_t &currentKey, const size_t &nbKeys) {
 
 		Atype	*value = NULL;
 
@@ -194,7 +194,7 @@ namespace JSON {
 		std::string	rawKey = getRawKey(raw, i);
 		skipWhitespaces(raw, i);
 
-		if (isEscChar(raw, i++, ':'))
+		if (!isEscChar(raw, i++, ':'))
 			throw Atype::parseException("Object: Key-value must be separated with non-escaped \":\"");
 
 		skipWhitespaces(raw, i);
@@ -202,10 +202,8 @@ namespace JSON {
 		skipWhitespaces(raw, i);
 
 		value = identify(rawValue);
-		/* to_remove */
 		if (!value)
 			return ;
-		/* ========= */
 		value->setKey(rawKey);
 
 		if (currentKey != nbKeys && !isEscChar(raw, i++, ',')) {
@@ -214,10 +212,12 @@ namespace JSON {
 			throw Atype::parseException("Object: Key-value pairs must be separated with non-escaped \",\"");
 		}
 
-		if (map.find(value) == map.end()) {
-			if (!value)
-				delete value;
-			throw AType::ParseException("Object: Duplicated key \"" + rawKey + "\"");
+		for (iterator it = _map.begin(); it != _map.end() ;it++) {
+			if (!it->first.compare(rawKey)) {
+				if (!value)
+					delete value;
+				throw Atype::parseException("Object: Duplicated key \"" + rawKey + "\"");
+			}
 		}
 		_map.insert(std::make_pair(rawKey, value));
 	}
@@ -231,10 +231,10 @@ namespace JSON {
 		const size_t		len = raw.length();
 		const size_t		nbKeys = countKeys();
 
-		for (size_t currentKey = 1; i < len && currentKey < nbKeys; currentKey++)
+		for (size_t currentKey = 1; i < len && currentKey <= nbKeys; currentKey++)
 			extractPair(raw, i, currentKey, nbKeys);
 		skipWhitespaces(raw, i);
 		if (raw[i])
-			throw Atype::parseException("Object: Unexpected end, maybe \":\" was missed\n");
+			throw Atype::parseException("Object: Unexpected end, maybe \":\" was missed");
 	}
 }

@@ -5,17 +5,28 @@
 #include <sys/stat.h> /* stat */
 
 #include <map>
+#include <vector>
+#include <string>
 #include <algorithm>
 
 #include "Atype.hpp"
+#include "Array.hpp"
 #include "Object.hpp"
 #include "String.hpp"
+#include "Boolean.hpp"
+#include "Number.hpp"
+#include "Null.hpp"
 
 /* --------------------------------------------------- */
 
 namespace JSON {
 
 	class Object;
+	class Array;
+	class String;
+	class Boolean;
+	class Number;
+	class Null;
 
 	Object	*parseFile( const std::string & );
 	Object	*parseRaw( std::string & );

@@ -23,7 +23,7 @@ namespace JSON {
 
 			void	removeBraces( void );
 			size_t	countKeys( void );
-			void	extractPair( const std::string &, size_t &, size_t &, size_t & );
+			void	extractPair( const std::string &, size_t &, size_t &, const size_t & );
 			std::string	getRawKey( const std::string &, size_t & );
 			Atype	*identify( const std::string & );
 	};

@@ -21,9 +21,9 @@ namespace JSON {
 
 			void	parse( void );
 
-			void			removeBraces( void );
-			const size_t	countElem( void );
-			string			getRawElem( const std::string &, size_t & );
-			AType			*identify( string & );
+			void	removeBraces( void );
+			size_t	countElem( void );
+			std::string	getRawElem( const std::string &, size_t & );
+			Atype	*identify( std::string & );
 	};
 }

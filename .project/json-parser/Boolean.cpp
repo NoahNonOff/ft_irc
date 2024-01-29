@@ -17,6 +17,6 @@ namespace JSON {
 		else if (!getRaw().compare("false"))
 			_val = false;
 		else
-			throw AType::ParseException("Boolean: [" + e.what() + "] cannot convert " + raw);
+			throw Atype::parseException("Boolean: cannot convert " + getRaw());
 	}
 }

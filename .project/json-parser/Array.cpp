@@ -2,9 +2,9 @@
 
 namespace JSON {
 
-	Array::Array(void) : AType(e_array, "") {}
+	Array::Array(void) : Atype(e_array, "") {}
 
-	Array::Array(const std::string &rawjson) : AType(e_array, "") {}
+	Array::Array(const std::string &rawjson) : Atype(e_array, rawjson) {}
 
 	Array::~Array(void) {
 
@@ -28,7 +28,7 @@ namespace JSON {
 		raw.erase(0, 1);
 	}
 
-	const size_t	Array::countElem(void) {
+	size_t	Array::countElem(void) {
 
 		size_t				ret = 0;
 		const std::string	&raw = getRaw();
@@ -70,7 +70,7 @@ namespace JSON {
 						info.dquote = !info.dquote;
 					break;
 				case ',':
-					if (isEscChar(s, i, ',') && !inArray && !inObject &&
+					if (isEscChar(raw, i, ',') && !info.inArray && !info.inObject &&
 						!info.squote && !info.dquote)
 						ret++;
 					break;
@@ -82,11 +82,12 @@ namespace JSON {
 		return ret;
 	}
 
-	string	Array::getRawElem(const std::string &raw, size_t &i) {
+	std::string	Array::getRawElem(const std::string &raw, size_t &i) {
 
 		struct Parse		info = { false, false, 0, 0 };
+		size_t				start = i;
 
-		for (size_t	start = i; i < raw.length(); i++) {
+		for (; i < raw.length(); i++) {
 			switch (raw[i]) {
 				case '{':
 					if (isEscChar(raw, i, '{'))
@@ -124,11 +125,15 @@ namespace JSON {
 						return raw.substr(start, i - start);
 			}
 		}
+		if (info.inArray || info.inObject || info.squote || info.dquote)
+			throw Atype::parseException("Array: Unclosed context detected");
+
+		return raw.substr(start, raw.length() - start);
 	}
 
-	AType	*Array::identify(string &raw) {
+	Atype	*Array::identify(std::string &raw) {
 
-		AType *ret = NULL;
+		Atype *ret = NULL;
 
 		if ((raw[0] == '-' && isdigit(raw[1])) || (isdigit(raw[0])))
 			ret = new JSON::Number(raw);
@@ -176,7 +181,7 @@ namespace JSON {
 		const size_t		len = raw.length();
 		const size_t		nbElem = countElem();
 
-		for (size_t currentElem = 1; i < len && currentElem < nbKeys; currentElem++) {
+		for (size_t currentElem = 1; i < len && currentElem < nbElem; currentElem++) {
 
 			skipWhitespaces(raw, i);
 			std::string	rawElem = getRawElem(raw, i);

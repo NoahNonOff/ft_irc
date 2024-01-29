@@ -11,6 +11,6 @@ namespace JSON {
 	void	Null::parse(void) {
 
 		if (getRaw().compare("null"))
-			throw AType::ParseException("Null: failed to parse null");
+			throw Atype::parseException("Null: failed to parse null");
 	}
 }
