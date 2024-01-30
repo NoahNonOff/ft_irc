@@ -19,6 +19,13 @@ namespace JSON {
 			Array( const std::string & );
 			~Array( void );
 
+			iterator		begin(void);
+			iterator		end(void);
+			const_iterator	begin(void) const;
+			const_iterator	end(void) const;
+
+			Atype	*operator[]( const size_t ) const;
+
 			void	parse( void );
 
 			void	removeBraces( void );

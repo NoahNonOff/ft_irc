@@ -15,6 +15,20 @@ namespace JSON {
 		_map.clear();
 	}
 
+	Object::iterator		Object::begin(void) { return _map.begin(); }
+	Object::iterator		Object::end(void) { return _map.end(); }
+	Object::const_iterator	Object::begin(void) const { return _map.begin(); }
+	Object::const_iterator	Object::end(void) const { return _map.end(); }
+
+	Atype	*Object::operator[](std::string const &key) const {
+
+		for (const_iterator it = _map.begin(); it != _map.end() ;it++) {
+			if (!it->first.compare(key))
+				return it->second;
+		}
+		return NULL;
+	}
+
 	void	Object::removeBraces(void) {
 
 		std::string	&raw = getRaw();

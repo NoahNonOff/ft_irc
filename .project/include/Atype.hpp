@@ -4,6 +4,9 @@
 
 namespace JSON {
 
+	class Object;
+	class Array;
+
 	typedef struct Parse {
 		bool	dquote;
 		bool	squote;
@@ -27,11 +30,29 @@ namespace JSON {
 
 			void	setKey( const std::string & );
 
-			const type &getType( void ) const;
-			const std::string &getRaw( void ) const;
-			const std::string &getKey( void ) const;
+			const type			&getType( void ) const;
+			const std::string	&getRaw( void ) const;
+			const std::string	&getKey( void ) const;
 
-			std::string &getRaw( void );
+			std::string			&getRaw( void );
+
+			/* -------------------------------- */
+
+			double	toNum( void );
+			std::string	toString( void );
+			Object	*toObject( void );
+			Array	*toArray( void );
+			bool	toBool( void );
+
+			Atype	*get( const std::string & );
+			Atype	*get( const size_t );
+
+			bool	isNum( void ) const;
+			bool	isStr( void ) const;
+			bool	isBool( void ) const;
+			bool	isArr( void ) const;
+			bool	isObj( void ) const;
+			bool	isNull( void ) const;
 
 			virtual void parse( void ) = 0;
 
@@ -46,3 +67,10 @@ namespace JSON {
 			};
 	};
 }
+
+#include "Array.hpp"
+#include "Object.hpp"
+#include "String.hpp"
+#include "Boolean.hpp"
+#include "Number.hpp"
+#include "Null.hpp"

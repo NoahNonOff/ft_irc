@@ -14,6 +14,18 @@ namespace JSON {
 		_arr.clear();
 	}
 
+	Array::iterator			Array::begin(void) { return _arr.begin(); }
+	Array::iterator			Array::end(void) { return _arr.end(); }
+	Array::const_iterator	Array::begin(void) const { return _arr.begin(); }
+	Array::const_iterator	Array::end(void) const { return _arr.end(); }
+
+	Atype	*Array::operator[](const size_t n) const {
+
+		if (n >= _arr.size())
+			return NULL;
+		return _arr[n];
+	}
+
 	void	Array::removeBraces(void) {
 
 		std::string		&raw = getRaw();

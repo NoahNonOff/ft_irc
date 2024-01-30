@@ -10,12 +10,6 @@
 #include <algorithm>
 
 #include "Atype.hpp"
-#include "Array.hpp"
-#include "Object.hpp"
-#include "String.hpp"
-#include "Boolean.hpp"
-#include "Number.hpp"
-#include "Null.hpp"
 
 /* --------------------------------------------------- */
 
