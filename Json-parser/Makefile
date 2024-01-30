@@ -1,4 +1,4 @@
-JSON =	json-parser
+JSON =	srcs
 
 SRC =	main.cpp						\
 		${JSON}/Parser.cpp				\

@@ -19,7 +19,14 @@ namespace JSON {
 	Array::const_iterator	Array::begin(void) const { return _arr.begin(); }
 	Array::const_iterator	Array::end(void) const { return _arr.end(); }
 
-	Atype	*Array::operator[](const size_t n) const {
+	const Atype	*Array::operator[](const size_t n) const {
+
+		if (n >= _arr.size())
+			return NULL;
+		return _arr[n];
+	}
+
+	Atype	*Array::operator[](const size_t n) {
 
 		if (n >= _arr.size())
 			return NULL;

@@ -47,12 +47,12 @@ namespace JSON {
 			Atype	*get( const std::string & );
 			Atype	*get( const size_t );
 
-			bool	isNum( void ) const;
-			bool	isStr( void ) const;
-			bool	isBool( void ) const;
-			bool	isArr( void ) const;
-			bool	isObj( void ) const;
-			bool	isNull( void ) const;
+			bool	isNum( void );
+			bool	isStr( void );
+			bool	isBool( void );
+			bool	isArr( void );
+			bool	isObj( void );
+			bool	isNull( void );
 
 			virtual void parse( void ) = 0;
 
@@ -67,6 +67,9 @@ namespace JSON {
 			};
 	};
 }
+
+std::ostream	&operator<<( std::ostream &, JSON::Atype & );
+std::ostream	&operator<<( std::ostream &, JSON::Atype * );
 
 #include "Array.hpp"
 #include "Object.hpp"

@@ -24,7 +24,8 @@ namespace JSON {
 			const_iterator	begin(void) const;
 			const_iterator	end(void) const;
 
-			Atype	*operator[]( std::string const & ) const;
+			Atype		*operator[]( std::string const & );
+			const Atype	*operator[]( std::string const & ) const;
 
 			void	parse( void );
 

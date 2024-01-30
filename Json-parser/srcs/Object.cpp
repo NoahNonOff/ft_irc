@@ -20,9 +20,18 @@ namespace JSON {
 	Object::const_iterator	Object::begin(void) const { return _map.begin(); }
 	Object::const_iterator	Object::end(void) const { return _map.end(); }
 
-	Atype	*Object::operator[](std::string const &key) const {
+	const Atype	*Object::operator[](std::string const &key) const {
 
 		for (const_iterator it = _map.begin(); it != _map.end() ;it++) {
+			if (!it->first.compare(key))
+				return it->second;
+		}
+		return NULL;
+	}
+
+	Atype	*Object::operator[](std::string const &key) {
+
+		for (iterator it = _map.begin(); it != _map.end() ;it++) {
 			if (!it->first.compare(key))
 				return it->second;
 		}

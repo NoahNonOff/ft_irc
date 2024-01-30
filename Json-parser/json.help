@@ -23,3 +23,7 @@ Example: "filename.json"
       {"firstName":"Johnny","lastName":"Roe"},
       ]
 }
+
+
+json->get("key")->isObject();
+json->get("key")->get("key")->toNum();

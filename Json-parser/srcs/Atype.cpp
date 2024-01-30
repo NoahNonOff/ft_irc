@@ -100,7 +100,7 @@ namespace JSON {
 		JSON::Object *t1 = dynamic_cast<JSON::Object *>(this);
 
 		if (t1)
-			return t1[key];
+			return (*t1)[key];
 		return &null;
 	}
 
@@ -109,26 +109,29 @@ namespace JSON {
 		JSON::Array *t1 = dynamic_cast<JSON::Array *>(this);
 
 		if (t1)
-			return t1[index];
+			return (*t1)[index];
 		return &null;
 	}
 
-	bool	Atype::isNum(void) const { return (dynamic_cast<JSON::Number *>(this) != NULL); }
+	bool	Atype::isNum(void) { return (dynamic_cast<JSON::Number *>(this) != NULL); }
 
-	bool	Atype::isStr(void) const { return (dynamic_cast<JSON::String *>(this) != NULL); }
+	bool	Atype::isStr(void) { return (dynamic_cast<JSON::String *>(this) != NULL); }
 
-	bool	Atype::isBool(void) const { return (dynamic_cast<JSON::Boolean *>(this) != NULL); }
+	bool	Atype::isBool(void) { return (dynamic_cast<JSON::Boolean *>(this) != NULL); }
 
-	bool	Atype::isArr(void) const { return (dynamic_cast<JSON::Array *>(this) != NULL); }
+	bool	Atype::isArr(void) { return (dynamic_cast<JSON::Array *>(this) != NULL); }
 
-	bool	Atype::isObj(void) const { return (dynamic_cast<JSON::Object *>(this) != NULL); }
+	bool	Atype::isObj(void) { return (dynamic_cast<JSON::Object *>(this) != NULL); }
 
-	bool	Atype::isNull(void) const {
+	bool	Atype::isNull(void) {
 
-		JSON::Array *t1 = dynamic_cast<JSON::Null *>(this) != NULL;
+		JSON::Null *t1 = dynamic_cast<JSON::Null *>(this);
 
 		if (this == &null || this == &nullobj || this == &nullarr || t1)
 			return true;
 		return false;
 	}
 }
+
+std::ostream	&operator<<(std::ostream &o, JSON::Atype &i) { return o << i.toString(); }
+std::ostream	&operator<<(std::ostream &o, JSON::Atype *i) { return o << i->toString(); }
