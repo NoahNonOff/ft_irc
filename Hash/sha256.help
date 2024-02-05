@@ -1,0 +1,8 @@
+msg -> (8)bit length
+
+msg length = 8 * nbChar
+
+(msg in bit) + (add 1 bit { 1 }) + (add n 0 { n = (multiple of 512) - 64 }) + (the last 64 bits is for the base length of the message)
+
+Divide into N Blocks of 512 bit
+Divide each blocks into M(16: M0 to M15) words of 32 bits
