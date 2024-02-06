@@ -11,3 +11,4 @@ duck
 # exclude cpu files
 gmon.out
 cpu_usage.txt
+hash

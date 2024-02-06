@@ -16,8 +16,8 @@ typedef std::vector<unsigned long>	vector_ul;
 	#define CH(x, y, z) (((x) & (y)) ^ (~(x) & (z)))
 	#define MAJ(x, y, z) (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
 
-	#define EP0(x) (ROTRIGHT(x,2) ^ ROTRIGHT(x,13) ^ ROTRIGHT(x,22))
-	#define EP1(x) (ROTRIGHT(x,6) ^ ROTRIGHT(x,11) ^ ROTRIGHT(x,25))
+	#define OP0(x) (ROTRIGHT(x,2) ^ ROTRIGHT(x,13) ^ ROTRIGHT(x,22))
+	#define OP1(x) (ROTRIGHT(x,6) ^ ROTRIGHT(x,11) ^ ROTRIGHT(x,25))
 
 #endif
 
@@ -58,7 +58,7 @@ vector_ul	convert_to_binary(const std::string &input) {
 
 	for (int i = 0; i < input.size(); ++i) {
 
-		bitset<8> b(input.c_str()[i]);
+		std::bitset<8> b(input.c_str()[i]);
 		ret.push_back(b.to_ulong());
 	}
 
@@ -82,15 +82,14 @@ void	padding(vector_ul &block) {
 		block.push_back(0x00000000);
 
 	// add l
-	bitset<64>			bitLength(l);
+	std::bitset<64>			bitLength(l);
 	std::string		strLength = bitLength.to_string();
 
 	for (int i = 0; i < 63; i += 8) {
 
-		bitset<8>	tmp(strLength.substr(i, 8));
+		std::bitset<8>	tmp(strLength.substr(i, 8));
 		block.push_back(tmp.to_ulong());
 	}
-	return block;
 }
 
 /* note: error when the message length is more than 55 characters.*/
@@ -102,7 +101,7 @@ void	resize_block(vector_ul &input) {
 	// Loop through the 64 sections by 4 steps and merge those 4 sections.
 	for (int i = 0; i < 64; i = i + 4) {
 
-		bitset<32> tmp(0);
+		std::bitset<32> tmp(0);
 
 		tmp  = (unsigned long)input[i] << 24;		// 8 * 3
 		tmp |= (unsigned long)input[i + 1] << 16;	// 8 * 2
@@ -117,7 +116,7 @@ void	resize_block(vector_ul &input) {
 
 std::string	show_as_hex(const unsigned long &input)
 {
-	bitset<32>			bs(input);
+	std::bitset<32>			bs(input);
 	unsigned			n = bs.to_ulong();
 	std::string			ret;
 	std::stringstream	sstream;
@@ -157,8 +156,8 @@ std::string	compute(const vector_ul &block) {
 	// The round
 	for (int t = 0; t < 64; t++) {
 
-		tmp1 = h + EP1(e) + CH(e, f, g) + k[t] + W[t];
-		tmp2 = EP0(a) + MAJ(a, b, c);
+		tmp1 = h + OP1(e) + CH(e, f, g) + k[t] + W[t];
+		tmp2 = OP0(a) + MAJ(a, b, c);
 
 		h = g;
 		g = f;
@@ -194,15 +193,15 @@ int main(int argc, char* argv[])
 
 	msg = argv[1];
 	if (msg.length() > 55)
-		return 0;
+		return 1;
 	
 	vector_ul	block;
 
 	block = convert_to_binary(msg);
 	padding(block);
 	resize_block(block);
-	hash = compute_hash(block);
+	hash = compute(block);
 	
-	cout << hash << endl;
+	std::cout << hash << std::endl;
 	return 0;
 }
