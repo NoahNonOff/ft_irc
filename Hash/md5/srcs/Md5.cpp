@@ -37,3 +37,10 @@ namespace hash {
 		return ret.getRaw();
 	}
 }
+
+/*
+*	to do:
+*		- import the padding from sha256
+*		- write the round
+*		- compiling and debugging
+*/
