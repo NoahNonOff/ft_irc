@@ -15,7 +15,7 @@ static const uint32_t	_K[64] = {
 	0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
 };
 
-namespace HASH {
+namespace hash {
 
 
 	SHA256::SHA256(void) : _raw(""), _blocklen(0) { hash(); }
@@ -175,7 +175,6 @@ namespace HASH {
 	const std::string	sha256(const std::string &raw) {
 
 		SHA256	ret(raw);
-
 		return ret.getHash();
 	}
 }

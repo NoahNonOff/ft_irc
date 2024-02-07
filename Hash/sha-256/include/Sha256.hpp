@@ -1,11 +1,10 @@
 #pragma once
 
-#include <iostream>
-#include <sstream>
 #include <bitset>
 #include <vector>
-#include <iomanip>
-#include <cstring>
+#include <sstream>
+#include <iostream>
+#include <iomanip> /* setfill() && setw() */
 #include <stdint.h> /* uint32_t */
 
 /* ["https://helix.stormhub.org/papers/SHA-256.pdf"] */
@@ -23,12 +22,12 @@
 	#define CH(x, y, z) (((x) & (y)) ^ (~(x) & (z)))
 	#define MAJ(x, y, z) (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
 
-	#define OP0(x) (ROTRIGHT(x,2) ^ ROTRIGHT(x,13) ^ ROTRIGHT(x,22))
-	#define OP1(x) (ROTRIGHT(x,6) ^ ROTRIGHT(x,11) ^ ROTRIGHT(x,25))
+	#define OP0(x) (ROTRIGHT(x, 2) ^ ROTRIGHT(x, 13) ^ ROTRIGHT(x, 22))
+	#define OP1(x) (ROTRIGHT(x, 6) ^ ROTRIGHT(x, 11) ^ ROTRIGHT(x, 25))
 
 #endif
 
-namespace HASH {
+namespace hash {
 
 	class SHA256 {
 
@@ -42,7 +41,7 @@ namespace HASH {
 			vector32	_blocks;
 			uint32_t	_blocklen;
 
-			uint8_t		_W[64];
+			uint32_t	_W[64];
 			uint32_t	_state[8]; // A, B, C, D, E, F, G, H
 
 		public:
