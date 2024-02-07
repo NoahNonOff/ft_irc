@@ -11,8 +11,8 @@
 /* ["https://csrc.nist.gov/files/pubs/fips/180-4/upd1/final/docs/fips180-4-draft-aug2014.pdf"] */
 /* ["https://www.youtube.com/watch?v=orIgy2MjqrA&ab_channel=RedBlockBlue"] */
 
-#ifndef HASH_F
-#define HASH_F
+#ifndef SHA256_F
+#define SHA256_F
 
 	#define TO32BIT(x) (x & 0xFFFFFFFF)
 

@@ -18,9 +18,9 @@ static const uint32_t	_K[64] = {
 namespace hash {
 
 
-	SHA256::SHA256(void) : _raw(""), _blocklen(0) { hash(); }
+	SHA256::SHA256(void) : _raw(""), _blocklen(0) { this->hash(); }
 
-	SHA256::SHA256(const std::string &str) : _raw(str), _blocklen(0) { hash(); }
+	SHA256::SHA256(const std::string &str) : _raw(str), _blocklen(0) { this->hash(); }
 
 	SHA256::~SHA256(void) {}
 

@@ -1,11 +1,12 @@
 SRC =	main.cpp					\
-		sha-256/srcs/Sha256.cpp
+		sha-256/srcs/Sha256.cpp		\
+		md5/srcs/Md5.cpp
 
 OBJ = $(SRC:.cpp=.o)
 CC = c++
 RM = rm -f
 DEBUG = 
-INCLUDE = -I ./sha-256/include
+INCLUDE = -I ./sha-256/include -I ./md5/include
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98 $(DEBUG)
 
 NAME = hash
