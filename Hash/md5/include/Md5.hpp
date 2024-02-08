@@ -1,7 +1,10 @@
 #pragma once
 
 #include <bitset>
+#include <vector>
+#include <sstream>
 #include <iostream>
+#include <iomanip> /* setfill() && setw() */
 #include <stdint.h> /* uint32_t */
 
 /* ["https://www.rfc-editor.org/rfc/rfc1321"] */
@@ -72,7 +75,8 @@ namespace hash {
 			vector32	_blocks;
 			uint32_t	_blocklen;
 
-			uint32_t	_state[4] // A, B, C, D
+			uint32_t	_M[16];
+			uint32_t	_state[4]; // A, B, C, D
 
 		public:
 			MD5( void );
@@ -82,7 +86,13 @@ namespace hash {
 			const std::string	getRaw( void ) const;
 			const std::string	getHash( void ) const;
 
-			void	hash( void );
+			void				setHash( void );
+
+			void				hash( void );
+			void				padding( void );
+			void				resizeBlock( void );
+			void				constructBlock( const int & );
+			void				compute( void );
 	};
 
 	const std::string	md5( const std::string & );

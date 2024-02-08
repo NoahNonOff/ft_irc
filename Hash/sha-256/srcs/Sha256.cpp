@@ -66,7 +66,6 @@ namespace hash {
 		}
 
 		padding();
-		resizeBlock();
 		compute();
 	}
 
@@ -94,6 +93,7 @@ namespace hash {
 			std::bitset<8>	tmp(strLength.substr(i, 8));
 			_blocks.push_back(tmp.to_ulong());
 		}
+		resizeBlock();
 	}
 
 	void	SHA256::resizeBlock(void) {
