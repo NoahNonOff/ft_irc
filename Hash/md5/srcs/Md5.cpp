@@ -44,6 +44,8 @@ namespace hash {
 			ss << std::hex << std::setw(8) << std::setfill('0') << n;
 			ss >> H;
 			_hash += H;
+			if (i < 3)
+				_hash += " ";
 		}
 	}
 
@@ -54,6 +56,7 @@ namespace hash {
 		_state[2] = 0x98badcfe;
 		_state[3] = 0x10325476;
 
+		// little endian AND big endian
 		for (int i = 0; i < (int)_raw.size(); ++i) {
 
 			std::bitset<8>	bit(_raw.c_str()[i]);
@@ -105,7 +108,12 @@ namespace hash {
 			ret[i / 4] = tmp.to_ulong();
 		}
 
+		for (int i = 0; i < 64 * (int)_blocklen; i++)
+			std::cout << "_blocks[" << i << "] : " << std::hex << _blocks[i] << std::endl;
+		std::cout << "--------------------" << std::endl;
 		_blocks = ret;
+		for (int i = 0; i < 16 * (int)_blocklen; i++)
+			std::cout << "_blocks[" << i << "] : " << std::hex << _blocks[i] << std::endl;
 	}
 
 	void	MD5::constructBlock(const int &nBlock) {
@@ -114,28 +122,70 @@ namespace hash {
 			_M[j] = TO32BIT(_blocks[j + (16 * nBlock)]);
 	}
 
+	/*
+		_M should be:
+		x[ 0] : 1953719668
+		x[ 1] : 128
+		x[ 2] : 0
+		x[ 3] : 0
+		x[ 4] : 0
+		x[ 5] : 0
+		x[ 6] : 0
+		x[ 7] : 0
+		x[ 8] : 0
+		x[ 9] : 0
+		x[10] : 0
+		x[11] : 0
+		x[12] : 0
+		x[13] : 0
+		x[14] : 32
+		x[15] : 0
+	*/
+
 	void	MD5::compute(void) {
 
 		for (int nBlock = 0; nBlock < (int)_blocklen; nBlock++) {
+
+			std::cout << "nBlock : " << nBlock << std::endl;
 
 			uint32_t	a = _state[0];
 			uint32_t	b = _state[1];
 			uint32_t	c = _state[2];
 			uint32_t	d = _state[3];
+			uint32_t	F = 0, g = 0;
+
+			for (int i = 0; i < 16; i++)
+				std::cout << "_M[" << i << "] : " << std::hex << _M[i] << std::endl;
+
+			std::cout << "--------------------" << std::endl;
 
 			constructBlock(nBlock);
+
+			for (int i = 0; i < 16; i++)
+				std::cout << "_M[" << i << "] : " << std::hex << _M[i] << std::endl;
 
 			// do 64 rounds
 			for (int i = 0; i < 64; i++) {
 
-				if (i < 16) {
-					FF(a, b, c, d, _M[i], s[i], T[i]);
+				if (0 <= i && i < 16) {
+					F = F(b, c, d);
+					g = i;
 				} else if (i < 32) {
-					GG(a, b, c, d, _M[(5 * 1 + 1) % 16], s[i], T[i]);
+					F = G(b, c, d);
+					g = (5 * i + 1) % 16;
 				} else if (i < 48) {
-					HH(a, b, c, d, _M[(3 * i + 5) % 16], s[i], T[i]);
-				} else if (i < 64)
-					II(a, b, c, d, _M[(7 * i ) % 16], s[i], T[i]);
+					F = H(b, c, d);
+					g = (3 * i + 5) % 16;
+				} else {
+					F = I(b, c, d);
+					g = (7 * i ) % 16;
+				}
+
+				F += a + T[i] + _M[g];
+				a = d;
+				d = c;
+				c = b;
+				b += ROTLEFT(F, s[i]);
 			}
 
 			_state[0] = _state[0] + a;
@@ -152,3 +202,22 @@ namespace hash {
 		return ret.getHash();
 	}
 }
+
+/*
+
+	FF(a, b, c, d, _M[], s[i], T[i])
+
+	for (int i = 0; i < 64; i++) {
+
+		if (0 <= i && i < 16) {
+			FF(a, b, c, d, _M[i], s[i], T[i]);
+		} else if (i < 32) {
+			GG(a, b, c, d, _M[(5 * i + 1) % 16], s[i], T[i]);
+		}  else if (i < 48) {
+			HH(a, b, c, d, _M[(3 * i + 5) % 16], s[i], T[i]);
+		}  else {
+			II(a, b, c, d, _M[(7 * i ) % 16], s[i], T[i]);
+		}
+	}
+
+*/

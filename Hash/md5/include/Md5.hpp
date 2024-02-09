@@ -11,6 +11,8 @@
 /* ["https://en.wikipedia.org/wiki/MD5#Algorithm"] */
 /* ["https://learn.microsoft.com/en-us/cpp/cpp/data-type-ranges?view=msvc-170"] */
 
+/* ["http://www.zedwood.com/article/cpp-md5-function"] */
+
 #ifndef MD5_F
 #define MD5_F
 
