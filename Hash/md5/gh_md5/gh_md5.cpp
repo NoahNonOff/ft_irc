@@ -31,7 +31,7 @@ documentation and/or software.
 */
  
 /* interface header */
-#include "md5.hpp"
+#include "gh_md5.hpp"
  
 /* system implementation headers */
 #include <cstdio>
@@ -164,9 +164,9 @@ void MD5::transform(const uint1 block[blocksize])
   uint4 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
   decode (x, block, blocksize);
 
-  std::cout << "in transform" << std::endl;
-  for (int i = 0; i < 16; i++)
-    std::cout << "x[" << i << "] : " << std::hex << x[i] << std::endl;
+  // std::cout << "in transform" << std::endl;
+  // for (int i = 0; i < 16; i++)
+  //   std::cout << "x[" << i << "] : " << std::hex << x[i] << std::endl;
 
   /* Round 1 */
   FF (a, b, c, d, x[ 0], S11, 0xd76aa478); /* 1 */
@@ -259,9 +259,13 @@ void MD5::update(const unsigned char input[], size_type length)
   size_type index = count[0] / 8 % blocksize;
  
   // Update number of bits
-  if ((count[0] += (length << 3)) < (length << 3))
+  if ((count[0] += (length << 3)) < (length << 3)) // (length << 3) = (length * 8)
     count[1]++;
   count[1] += (length >> 29);
+
+  std::cout << count[0] << " :: " << count[1] << std::endl;
+  size_type a = 27 << 3;
+  std::cout << a << std::endl;
  
   // number of bytes we need to fill in buffer
   size_type firstpart = 64 - index;

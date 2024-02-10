@@ -1,7 +1,10 @@
 #pragma once
 
-#include <cstring>
+#include <bitset>
+#include <vector>
+#include <sstream>
 #include <iostream>
+#include <iomanip> /* setfill() && setw() */
 #include <stdint.h> /* uint32_t */
 
 /* ["https://www.rfc-editor.org/rfc/rfc1321"] */
@@ -16,7 +19,7 @@
 
 	/* '^' = XOR ; '&' = AND ; '|' = OR ; '~' = NOT */
 
-	#define BLOCKSIZE 64
+	#define TO32BIT(x) (x & 0xFFFFFFFF)
 
 	// #define F(B, C, D) (((B) & (C)) | ((~B) & (D)))
 	#define F(B, C, D) ((D) ^ ((B) & ((C) ^ (D)))) // For improved efficiency
@@ -62,31 +65,38 @@
 
 #endif
 
-// typedef unsigned int size_type; // must be 32bit
 namespace hash {
 
 	class MD5
 	{
 		public:
-			MD5( void );
-			MD5( const std::string& );
+			typedef std::vector<uint32_t>	vector32;
 
 		private:
-			bool		_finalized;
+			const std::string	_raw;
+			std::string			_hash;
 
-			uint8_t		_buffer[BLOCKSIZE];	// bytes that didn't fit in last 64 byte chunk
-			uint32_t	_count[2];			// 64bit counter for number of bits (lo, hi)
-			uint32_t	_state[4];			// digest so far
-			uint8_t		_digest[16];		// the result
+			vector32	_blocks;
+			uint32_t	_blocklen;
+
 			uint32_t	_M[16];
+			uint32_t	_state[4]; // A, B, C, D
 
-			void				init( void );
-			void				update( const char *, uint32_t );
-			void				update( const unsigned char *, uint32_t );
-			void				transform( const uint8_t block[BLOCKSIZE] );
+		public:
+			MD5( void );
+			MD5( const std::string & );
+			~MD5( void );
 
-			void		decode( uint32_t output[], const uint8_t input[], uint32_t );
-			void		encode( uint8_t output[], const uint32_t input[], uint32_t );
+			const std::string	getRaw( void ) const;
+			const std::string	getHash( void ) const;
+
+			void				setHash( void );
+
+			void				hash( void );
+			void				padding( void );
+			void				resizeBlock( void );
+			void				constructBlock( const int & );
+			void				compute( void );
 	};
 
 	const std::string	md5( const std::string & );
