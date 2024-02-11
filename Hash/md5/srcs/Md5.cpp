@@ -23,19 +23,34 @@
 
 namespace hash {
 
-	MD5::MD5(void) : _finalized(false) { init(); }
+	MD5::MD5(void) : _raw("") { hash(); }
 
-	MD5::MD5(const std::string &raw) : _finalized(false) {
+	MD5::MD5(const std::string &raw) : _raw(raw) { hash(); }
 
-		init();
-		update(raw.c_str(), raw.length());
-		// finalize();
+	MD5::~MD5(void) {}
+
+	const std::string	MD5::getRaw(void) const { return _raw; }
+	const std::string	MD5::getHash(void) const { return _hash; }
+
+	void	MD5::setHash(void) {
+
+		_hash = "";
+		uint8_t	digest[16];
+		encode(digest, _state, 16);
+
+		for (int i = 0; i < 16; i++) {
+
+			std::string			H;
+			std::stringstream	ss;
+
+			ss << std::setw(2) << std::setfill('0') << std::hex << (int)digest[i];
+			ss >> H;
+			_hash += H;
+		}
 	}
 
-	void	MD5::init(void) {
+	void	MD5::hash(void) {
 
-		_finalized = false;
-	
 		_count[0] = 0;
 		_count[1] = 0;
 
@@ -43,13 +58,14 @@ namespace hash {
 		_state[1] = 0xefcdab89;
 		_state[2] = 0x98badcfe;
 		_state[3] = 0x10325476;
+
+		update(_raw.c_str(), _raw.length());
+		finalize();
 	}
 
 	void	MD5::decode(uint32_t output[], const uint8_t input[], uint32_t len) {
 
-		unsigned int	i = 0, j = 0;
-
-		for (; j < len; i++, j += 4) {
+		for (uint32_t i = 0, j = 0; j < len; i++, j += 4) {
 			output[i] = ((uint32_t)input[j]) | (((uint32_t)input[j + 1]) << 8) |
 				(((uint32_t)input[j + 2]) << 16) | (((uint32_t)input[j + 3]) << 24);
 		}
@@ -57,10 +73,9 @@ namespace hash {
 
 	void	MD5::encode(uint8_t output[], const uint32_t input[], uint32_t len) {
 
-		unsigned int	i = 0, j = 0;
+		for (uint32_t i = 0, j = 0; j < len; i++, j += 4) {
 
-		for (; j < len; i++, j += 4) {
-
+			/* (0xff) = (255) = (uint8_t max) */
 			output[j + 0] = input[i] & 0xff;
 			output[j + 1] = (input[i] >> 8) & 0xff;
 			output[j + 2] = (input[i] >> 16) & 0xff;
@@ -69,51 +84,43 @@ namespace hash {
 	}
 
 	// for convenience provide a verson with signed char
-	void	MD5::update(const char input[], uint32_t length) { update((const unsigned char*)input, length); }
+	void	MD5::update(const char input[], uint32_t length) { update((const uint8_t*)input, length); }
 
-	void	MD5::update(const unsigned char input[], uint32_t length) {
+	void	MD5::update(const uint8_t input[], uint32_t length) {
 
-		// compute number of bytes mod 64
-		uint32_t	index = _count[0] / 8 % BLOCKSIZE;
+		uint32_t	index = (uint32_t)((_count[0] >> 3) & 0x3F); // same as (_count[0] / 8) % 64
 
-		// Update number of bits
 		if ((_count[0] += (length << 3)) < (length << 3)) // (length << 3) = (length * 8)
 			_count[1]++;
 		_count[1] += (length >> 29);
 
 		// number of bytes we need to fill in buffer
-		uint32_t	firstpart = 64 - index;
+		uint32_t	partLen = 64 - index;
 		uint32_t	i = 0;
 
-		// transform as many times as possible.
-		if (length >= firstpart)
+		if (length >= partLen)
 		{
-			///////////////////////////////
-			std::cout << "debug: IF statement in MD5::update" << std::endl;
-			///////////////////////////////
-
 			// fill buffer first, transform
-			memcpy(&_buffer[index], input, firstpart);
+			memcpy(&_buffer[index], input, partLen);
 			transform(_buffer);
 
 			// transform chunks of blocksize (64 bytes)
-			for (i = firstpart; i + BLOCKSIZE <= length; i += BLOCKSIZE)
+			for (i = partLen; i + 64 <= length; i += 64)
 				transform(&input[i]);
-
 			index = 0;
 		}
-	 
-		// buffer remaining input
 		memcpy(&_buffer[index], &input[i], length - i);
 	}
 
 	// apply MD5 algo on a block
-	void	MD5::transform(const uint8_t block[BLOCKSIZE]) {
+	void	MD5::transform(const uint8_t block[64]) {
 
-		(void)_digest;
+		decode(_M, block, 64);
 
-		uint32_t	a = _state[0], b = _state[1], c = _state[2], d = _state[3];
-		decode(_M, block, BLOCKSIZE);
+		uint32_t	a = _state[0];
+		uint32_t	b = _state[1];
+		uint32_t	c = _state[2];
+		uint32_t	d = _state[3];
 
 		/* Round 1 */
 		FF (a, b, c, d, _M[ 0], S11, 0xd76aa478); /* 1 */
@@ -195,10 +202,33 @@ namespace hash {
 		memset(_M, 0, sizeof(_M));
 	}
 
+	void	MD5::finalize(void) {
+
+		const static uint8_t	padding[64] = { // 0x80 -> 10000000
+			0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		};
+
+		// Save number of bits
+		uint8_t	bits[8];
+		encode(bits, _count, 8);
+
+		// pad out to 56 mod 64.
+		uint32_t	index = (uint32_t)((_count[0] >> 3) & 0x3F);
+		uint32_t	padLen = (index < 56) ? (56 - index) : (120 - index);
+
+		update(padding, padLen);
+		
+		// Append length (before padding)
+		update(bits, 8);
+
+		setHash();
+	}
+
 	const std::string	md5(const std::string &raw) {
 
 		MD5	ret(raw);
-		// return ret.getHash();
-		return "";
+		return ret.getHash();
 	}
 }

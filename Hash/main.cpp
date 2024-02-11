@@ -12,7 +12,7 @@ int	main(int ac, char **av) {
 
 		for (int i = 1; i < ac; i++) {
 			std::cout << "[sha256]" << av[i] << ": \"" << hash::sha256(av[i]) << "\"" << std::endl;
-			std::cout << "[md5]" << av[i] << ": \"" << hash::md5(av[i]) << "\"" << std::endl;
+			std::cout << "[md5   ]" << av[i] << ": \"" << hash::md5(av[i]) << "\"" << std::endl;
 			if (i < ac - 1)
 				std::cout << "-------------------------------------------------------" << std::endl;
 		}

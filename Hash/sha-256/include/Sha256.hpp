@@ -52,14 +52,6 @@ namespace hash {
 			const std::string	getRaw( void ) const;
 			const std::string	getHash( void ) const;
 
-			void				setHash( void );
-
-			void				hash( void );
-			void				padding( void );
-			void				resizeBlock( void );
-			void				constructBlock( const int & );
-			void				compute( void );
-
 			//Exceptions
 			class sha256Error : public std::exception {
 				private:
@@ -69,6 +61,15 @@ namespace hash {
 					virtual ~sha256Error() throw() {}
 					virtual const char *what(void) const throw() { return _msg.c_str(); }
 			};
+
+		private:
+			void	hash( void );
+			void	setHash( void );
+
+			void	padding( void );
+			void	resizeBlock( void );
+			void	constructBlock( const int & );
+			void	compute( void );
 
 	};
 
