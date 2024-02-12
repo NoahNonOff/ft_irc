@@ -1,4 +1,4 @@
-# ft_irc (server + client)
+# ft_irc (irc server)
 This project is one of the 42 common core. The goal of this project is to recreate a simple IRC server from scratch in a pure c++ 98 with basic commands. I also have build a client to test the server.<br><br>
 Because **we can't use multithreading** to build the server I use a fifo [ first in first out ] system to treat the clients request. In addition to that, we have to **use non-blocking file descriptor**, that's why i choose to use `select()` witch is a tool to manage file descriptor (for more information, see [this](https://man7.org/linux/man-pages/man2/select.2.html)).<br>
 To compile this project, jou just have to use `make`.
