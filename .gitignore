@@ -2,13 +2,11 @@
 *.o
 # exclude all .txt files
 *.txt
-# exclude test file
-*_test.*
+# exclude all test files
+*test*
 # exclude binary
 ft_irc
 a.out
-duck
 # exclude cpu files
 gmon.out
 cpu_usage.txt
-hash

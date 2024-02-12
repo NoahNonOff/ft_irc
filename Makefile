@@ -1,20 +1,25 @@
-# Makefile
-#
-# Author: Noah BEAUFILS
-# Date: 8-jan-2024
-
-DIR =	srcs
-
-SRC =	${DIR}/main.cpp				\
-		${DIR}/utils.cpp			\
-		${DIR}/client.cpp			\
-		${DIR}/server.cpp
+SRC =	srcs/main.cpp						\
+		srcs/utils.cpp						\
+		srcs/client.cpp						\
+		srcs/server.cpp						\
+											\
+		Hash/md5/srcs/Md5.cpp				\
+		Hash/sha-256/srcs/Sha256.cpp		\
+											\
+		Json-parser/srcs/Parser.cpp			\
+		Json-parser/srcs/Atype.cpp			\
+		Json-parser/srcs/Object.cpp			\
+		Json-parser/srcs/Array.cpp			\
+		Json-parser/srcs/String.cpp			\
+		Json-parser/srcs/Number.cpp			\
+		Json-parser/srcs/Null.cpp			\
+		Json-parser/srcs/Boolean.cpp		\
 
 OBJ = $(SRC:.cpp=.o)
 CC = c++
 RM = rm -f
 DEBUG = 
-INCLUDE = -I ./include
+INCLUDE = -I ./include -I ./Json-parser/include
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98 $(DEBUG)
 
 NAME = ft_irc
