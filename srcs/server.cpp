@@ -1,29 +1,25 @@
-// server.cpp
-//
-// Author: Noah BEAUFILS
-// Date: 8-jan-2024
-
 #include "irc.hpp"
 
 /* ---------------------------------- Set and Get ---------------------------------- */
 int const &Server::getFd( void ) const { return _fd; }
+int const &Server::getPort( void ) const { return _port; }
 std::string const &Server::getPassword(void) const { return _password; };
 std::map<int, Client *> const &Server::getClients( void ) const { return _clients; }
-// std::vector<Channel *> const &Server::getChannel( void ) const { return _channels; };
 
 /* ---------------------------------- Coplien's f. ---------------------------------- */
-Server::Server(int port, std::string const &password) : _password(password) {
+Server::Server(int port, std::string const &password, int h) : _pHash(h), _password(password) {
 
+	(void)_pHash;
 	_numClient = 0;
 	/* create a socket (IPV4, TCP) */
 	this->_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 	if (-1 == this->_fd)
-		throw Server::init_error((char *)"failed to create a socket");
+		throw Server::serverError((char *)"failed to create a socket");
 
 	/* remove a binding error (bind even if the port is already use) */
 	int	opt = 1;
 	if (setsockopt(this->_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int)) < 0)
-		throw Server::init_error((char *)"setsockopt(SO_REUSEADDR) failed");
+		throw Server::serverError((char *)"setsockopt(SO_REUSEADDR) failed");
 
 	/* binding to the port */
 	this->_sockAddr.sin_family = AF_INET;
@@ -31,24 +27,21 @@ Server::Server(int port, std::string const &password) : _password(password) {
 	this->_sockAddr.sin_port = htons(port); // htons convert number to network byte order
 
 	if (bind(this->_fd, (struct sockaddr *)&this->_sockAddr, sizeof(sockaddr)) < 0)
-		throw Server::init_error((char *)"failed during binding");
+		throw Server::serverError((char *)"failed during binding");
 
 	if (listen(this->_fd, MAX_WAIT) < 0)
-		throw Server::init_error((char *)"failed to listen on socket");
+		throw Server::serverError((char *)"failed to listen on socket");
 
 	std::cout << "listen on port " << port << std::endl;
 }
 
-Server::~Server() {
+Server::~Server(void) {
 
 	/* destroy the server */
 	std::map<int, Client *>::iterator	it = _clients.begin();
 
 	for (; it != _clients.end(); ++it)
 		delete it->second;
-
-	// for (int i = 0; i < (int)_channels.size(); i++)
-	// 	delete _channels[i];
 
 	_clients.clear();
 	close(_fd);
@@ -64,9 +57,9 @@ void	Server::run(void) {
 	std::cout << "waiting for connections ..." << std::endl;
 	while (1) {
 
-		FD_ZERO(&this->_readfds); // clear socket_set
-		FD_ZERO(&this->_writefds);
-		FD_SET(this->_fd, &this->_readfds); // add server ID to socket_set
+		FD_ZERO(&this->_fds.readfds); // clear socket_set
+		FD_ZERO(&this->_fds.writefds);
+		FD_SET(this->_fd, &this->_fds.readfds); // add server ID to socket_set
 		max_sd = this->_fd;
 
 		/* add all client ID to socket_set */
@@ -74,38 +67,34 @@ void	Server::run(void) {
 
 			int	sd = it->second->getFd();
 			if (sd > 0) {
-				FD_SET(sd, &this->_readfds);
+				FD_SET(sd, &this->_fds.readfds);
 				if (it->second->getWritting())
-					FD_SET(sd, &this->_writefds);
+					FD_SET(sd, &this->_fds.writefds);
 			}
 			if (sd > max_sd)
 				max_sd = sd;
 		}
 
-		struct timeval	tv = { 0, 50000 };
-		activity = select(max_sd + 1, &this->_readfds, &this->_writefds, NULL, &tv);
+		activity = select(max_sd + 1, &this->_fds.readfds, &this->_fds.writefds, NULL, NULL);
 		if (activity < 0 && errno != EINTR)
-			throw Server::run_error((char *)"select failed");
+			throw Server::serverError((char *)"select failed");
 
 		/* incoming connection */
-		if (FD_ISSET(this->_fd, &this->_readfds))
-			if (_numClient < MAX_CLIENT)
+		if (FD_ISSET(this->_fd, &this->_fds.readfds))
+			if (this->_numClient < MAX_CLIENT)
 				this->addClient();
 
 		/* I/O (input/output) operation from client */
-		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		for (clt_iterator it = _clients.begin(); it != _clients.end(); ++it) {
+
 			int	sd = it->first;
 
-			if (FD_ISSET(sd, &_readfds))
+			if (FD_ISSET(sd, &_fds.readfds))
 				if (!this->readFromClient(sd))
 					break ;
-		}
-
-		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-			int	sd = it->first;
 
 			if (it->second->getWritting())
-				if (FD_ISSET(sd, &_writefds))
+				if (FD_ISSET(sd, &this->_fds.writefds))
 					this->sendToClient(sd);
 		}
 	}
@@ -140,11 +129,8 @@ bool	Server::readFromClient(int sd) {
 	if (b_read < 1)
 		return this->removeClient(sd);
 	else {
-		std::string	msg = _mtos(buff);
+		std::string	msg = mtos(buff);
 		std::cout << "<" << msg << ">" << std::endl;
-
-		// _clients[sd]->setWritting(true);
-		// _clients[sd]->setMsg("001 dan\r\n");
 
 		if (!_clients[sd]->treatRequest(msg, this))
 			return this->removeClient(sd);
@@ -160,7 +146,7 @@ void	Server::addClient(void) {
 	int	new_socket = accept(_fd, (struct sockaddr *)&_sockAddr, &addr_len);
 
 	if (new_socket < 0)
-		throw Server::run_error((char *)"failed during acceptation");
+		throw Server::serverError((char *)"failed during acceptation");
 
 	/* add the new socket to the socket_set */
 	std::cout << "a new user (" << new_socket << ") is now connected to the server" << std::endl;

@@ -1,4 +1,4 @@
-#include "../include/Sha256.hpp"
+#include "Sha256.hpp"
 #include <stdint.h> /* UINT32_MAX */
 
 static const uint32_t	_K[64] = {

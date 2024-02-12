@@ -1,12 +1,6 @@
-// client.hpp
-//
-// Author: Noah BEAUFILS
-// Date: 8-jan-2024
+#pragma once
 
-#ifndef CLIENT_HPP
-# define CLIENT_HPP
-
-# include "irc.hpp"
+#include "irc.hpp"
 
 class Server;
 
@@ -77,5 +71,3 @@ class Client
 		// bool	isInvite( std::string const & );
 		// void	invite( std::string const & );
 };
-
-#endif

@@ -1,8 +1,3 @@
-// client.cpp
-//
-// Author: Noah BEAUFILS
-// Date: 16-jan-2024
-
 #include "irc.hpp"
 
 /* ---------------------------------- Set and Get ---------------------------------- */

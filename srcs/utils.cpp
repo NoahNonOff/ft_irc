@@ -1,12 +1,7 @@
-// utils.cpp
-//
-// Author: Noah BEAUFILS
-// Date: 8-jan-2024
-
 #include "irc.hpp"
 
 /* convert a string in an int */ 
-int	_stoi(std::string const &str) {
+int	stoi(std::string const &str) {
 
 	if (str.size() > 10)
 		throw std::length_error("number too long");
@@ -29,7 +24,7 @@ int	_stoi(std::string const &str) {
 }
 
 /* convert a dirty string (with '\n', '\r', ...) to a clean string */
-std::string	_mtos(char *msg) {
+std::string	mtos(char *msg) {
 
 	int			end;
 	std::string	ret = msg;
@@ -69,4 +64,13 @@ std::vector<std::string>	splitCmds(std::string const command) {
 			break ;
 	}
 	return ret;
+}
+
+std::string	toLower(std::string const &str) {
+
+	std::string	ret(str);
+
+	for (size_t i = 0; i <ret.size(); i++)
+		ret[i] = tolower(ret[i]);
+	return (ret);
 }

@@ -1,64 +1,43 @@
-// irc.hpp
-//
-// Author: Noah BEAUFILS
-// Date: 8-jan-2024
+#pragma once
 
-#ifndef IRC_HPP
-# define IRC_HPP
+#include <iostream>
+#include <string>
+#include <exception>
+#include <cstdlib>			/* exit */
+#include <csignal>			/* signal */
+#include <cerrno>			/* errno */
+#include <fstream>
+#include <vector>
+#include <map>
 
-/* -------------------- library -------------------- */
+#include <stdlib.h>
+#include <unistd.h>
+#include <netinet/in.h>		/* htons() */
+#include <sys/socket.h>
+#include <string.h>			/* strcmp */
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
-# include <iostream>
-# include <string>
-# include <exception>
-# include <cstdlib> /* exit */
-# include <csignal> /* signal */
-# include <cerrno> /* errno */
-# include <fstream>
-# include <vector>
-# include <map>
+#include "server.hpp"
+#include "client.hpp"
 
-# include <stdlib.h>
-# include <unistd.h>
-# include <netinet/in.h> /* htons() */
-# include <sys/socket.h>
-# include <string.h> /* strcmp */
-# include <arpa/inet.h>
-# include <netinet/in.h>
+#include "Parser.hpp"
+#include "Sha256.hpp"
+#include "Md5.hpp"
 
-// # include "channel.hpp"
-# include "server.hpp"
-# include "client.hpp"
+/* [ "https://www.geeksforgeeks.org/socket-programming-in-cc-handling-multiple-clients-on-server-without-multi-threading/" ] */
+/* [ "https://www.cs.cmu.edu/~srini/15-441/S10/project1/pj1_description.pdf" ] */
+/* [ "http://vidalc.chez.com/lf/socket.html#lowlevel" ] */
+/* [ "https://www.rfc-editor.org/rfc/rfc2812" ] */
 
-/* --------------------- macros -------------------- */
+#define MAX_WAIT 7
+#define MAX_CLIENT 15
 
-# ifndef MAX_WAIT
-#  define MAX_WAIT 7
-# endif
-
-# ifndef MAX_CLIENT
-#  define MAX_CLIENT 10
-# endif
-
-# define BUFFER_SIZE 10000
-# define to_str( s ) # s
-
-static const std::string	lst_name[10] = {
-	"user0",
-	"user1",
-	"user2",
-	"user3",
-	"user4",
-	"user5",
-	"user6",
-	"user7",
-	"user8",
-	"user9"
-};
+#define BUFFER_SIZE 10000
+#define to_str( s ) # s
 
 /* -------------------- utils --------------------- */
-int							_stoi( std::string const & );
-std::string					_mtos( char * );
+int							stoi( std::string const & );
+std::string					mtos( char * );
 std::vector<std::string>	splitCmds( std::string const );
-
-#endif
+std::string					toLower(std::string const &str);

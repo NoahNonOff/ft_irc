@@ -1,63 +1,54 @@
-// server.hpp
-//
-// Author: Noah BEAUFILS
-// Date: 8-jan-2024
+#pragma once
 
-#ifndef SERVER_HPP
-# define SERVER_HPP
+#include "irc.hpp"
 
-# include "irc.hpp"
+typedef struct s_fdSet {
+	fd_set	readfds;
+	fd_set	writefds;
+}	fdSet;
 
 class Client;
 
 class Server
 {
+	public:
+		typedef std::map<int, Client *>::iterator	clt_iterator;
+
 	private:
-		std::string const		_password; /* password of the server */
-		int						_fd;
+		const int				_pHash;		/* sha256 = 0 / md5 = 1 */
+		const std::string		_password;	/* password of the server */
+
 		int						_numClient;
+		int						_port;
+		int						_fd;
+
 		struct sockaddr_in		_sockAddr;
 		std::map<int, Client *>	_clients;
 
-		fd_set					_readfds;
-		fd_set					_writefds;
-
-		// std::vector<Channel *>	_channels;
+		fdSet					_fds;
 
 	public:
-		Server( int, std::string const & );
-		~Server();
+		Server( int, std::string const &, int );
+		~Server( void );
 
-		int const &getFd( void ) const;
-		std::string const &getPassword( void ) const;
-		std::map<int, Client *> const &getClients( void ) const;
-		// std::vector<Channel *> const &getChannel( void ) const;
+		const int &getFd( void ) const;
+		const int &getPort( void ) const;
+		const std::string &getPassword( void ) const;
+		const std::map<int, Client *> &getClients( void ) const;
 
-		void		run( void );
-		void		addClient( void );
-		bool		removeClient( int );
-		bool		readFromClient( int );
-		void		sendToClient( int );
-		// bool		isAlreadyTaken( std::string const & );
-		// Client		*isInServer( std::string const & );
-		// Channel		*addChannel( std::string const & );
-		// std::string	giveNickname( void );
+		void	run( void );
 
-		class	init_error : public std::exception {
+		class	serverError : public std::exception {
 			private:
-				char	*msg;
+				char	*_msg;
 			public:
-				init_error(char *message) : msg(message) {}
-				virtual const char* what() const throw () { return msg; }
+				serverError(char *message) : _msg(message) {}
+				virtual const char* what() const throw () { return _msg; }
 		};
 
-		class	run_error : public std::exception {
-			private:
-				char	*msg;
-			public:
-				run_error(char *message) : msg(message) {}
-				virtual const char* what() const throw () { return msg; }
-		};
+	private:
+		void	addClient( void );
+		bool	removeClient( int );
+		bool	readFromClient( int );
+		void	sendToClient( int );
 };
-
-#endif

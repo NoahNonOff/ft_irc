@@ -15,11 +15,15 @@ SRC =	srcs/main.cpp						\
 		Json-parser/srcs/Null.cpp			\
 		Json-parser/srcs/Boolean.cpp		\
 
+INCLUDE =	-I ./include					\
+			-I ./Json-parser/include		\
+			-I ./Hash/sha-256/include		\
+			-I ./Hash/md5/include			\
+
 OBJ = $(SRC:.cpp=.o)
 CC = c++
 RM = rm -f
 DEBUG = 
-INCLUDE = -I ./include -I ./Json-parser/include
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98 $(DEBUG)
 
 NAME = ft_irc
