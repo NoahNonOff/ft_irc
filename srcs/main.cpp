@@ -32,7 +32,7 @@ static bool	extractFlag(int ac, char *av[], int &i, t_Args *v) {
 		v->hash = 0;
 	} else if (!s.compare("-h")) {
 		if (i == ac - 1) {
-			std::cerr << "error: missing argument after \"-h\"" << std::endl;
+			std::cerr << "PARSING: error: missing argument after \"-h\"" << std::endl;
 			return 1;
 		}
 		s = av[++i];
@@ -41,17 +41,17 @@ static bool	extractFlag(int ac, char *av[], int &i, t_Args *v) {
 		} else if (!toLower(s).compare("md5")) {
 			v->hash = 0;
 		} else {
-			std::cerr << "error: unknown argument: " << s << std::endl;
+			std::cerr << "PARSING: error: unknown argument: " << s << std::endl;
 			return 1;
 		}
 	} else if (!s.compare("-c")) {
 		if (i == ac - 1) {
-			std::cerr << "error: missing argument after \"-c\"" << std::endl;
+			std::cerr << "PARSING: error: missing argument after \"-c\"" << std::endl;
 			return 1;
 		}
 		v->configFile = av[++i];
 	} else {
-		std::cerr << "error: unknown flag: " << s << std::endl;
+		std::cerr << "PARSING: error: unknown flag: " << s << std::endl;
 		return 1;
 	}
 	return 0;
@@ -81,13 +81,13 @@ static bool	checkArgs(int ac, char *av[], t_Args *v) {
 					v->password = std::string(av[i]);
 					break ;
 				default :
-					std::cerr << "error: unexpected argument: " << av[i] << std::endl;
+					std::cerr << "PARSING: error: unexpected argument: " << av[i] << std::endl;
 					return 1;
 			}
 		}
 	}
 	if (curr != 2) {
-		std::cerr << "error: mandatory argument missing (must be <port> or <password>)" << std::endl;
+		std::cerr << "PARSING: error: mandatory argument missing (must be <port> or <password>)" << std::endl;
 		return 1;
 	}
 	return 0;
@@ -106,15 +106,22 @@ int	main(int ac, char *av[])
 		return 2;
 	}
 
-	/* initialize the signal handler to close the server */
-	std::signal(SIGINT, &endProg);
+	if (v.port < 1024 || v.port > 65535) {
+		std::cerr << "PARSING: error: " << (v.port < 1024 ? "Reserved port" : "port doesn't exist") << std::endl;
+		return 3;
+	}
+
+	std::signal(SIGINT, &endProg); /* initialize the signal handler to close the server */
 
 	try {
 		Server_ptr = new Server(v.port, (v.hash ? hash::md5(v.password) : hash::sha256(v.password)), v.hash);
-		memset(&v, 0, sizeof(v)); /* Zeroize sensitive infos */
-		Server_ptr->run(); /* run the server and wait for client */
+		if (!v.configFile.empty())
+			Server_ptr->getConfig(v.configFile);	/* get the config from JSON file */
+		memset(&v, 0, sizeof(v));					/* Zeroize sensitive infos */
+		Server_ptr->init();							/* init the socket and bind it to port */
+		Server_ptr->run();							/* run the server and wait for client */
 	}
-	catch (Server::serverError &e) {
+	catch (std::exception &e) {
 		std::cerr << "SERVER: error: " << e.what() << std::endl;
 		ret = 127;
 	}

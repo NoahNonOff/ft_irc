@@ -18,20 +18,19 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-#include "server.hpp"
-#include "client.hpp"
-
 #include "Parser.hpp"
 #include "Sha256.hpp"
 #include "Md5.hpp"
+
+#include "server.hpp"
+#include "client.hpp"
 
 /* [ "https://www.geeksforgeeks.org/socket-programming-in-cc-handling-multiple-clients-on-server-without-multi-threading/" ] */
 /* [ "https://www.cs.cmu.edu/~srini/15-441/S10/project1/pj1_description.pdf" ] */
 /* [ "http://vidalc.chez.com/lf/socket.html#lowlevel" ] */
 /* [ "https://www.rfc-editor.org/rfc/rfc2812" ] */
 
-#define MAX_WAIT 7
-#define MAX_CLIENT 15
+/* ["https://www.beyondtrust.com/docs/privilege-management/unix-linux/admin/settings/port-usage.htm"] */
 
 #define BUFFER_SIZE 10000
 #define to_str( s ) # s

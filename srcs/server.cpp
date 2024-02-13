@@ -1,38 +1,19 @@
-#include "irc.hpp"
+#include "server.hpp"
 
-/* ---------------------------------- Set and Get ---------------------------------- */
-int const &Server::getFd( void ) const { return _fd; }
-int const &Server::getPort( void ) const { return _port; }
-std::string const &Server::getPassword(void) const { return _password; };
-std::map<int, Client *> const &Server::getClients( void ) const { return _clients; }
+int const						&Server::getFd( void ) const { return _fd; }
+int const						&Server::getPort( void ) const { return _port; }
+std::string const				&Server::getPassword(void) const { return _password; }
+std::map<int, Client *> const	&Server::getClients( void ) const { return _clients; }
 
-/* ---------------------------------- Coplien's f. ---------------------------------- */
 Server::Server(int port, std::string const &password, int h) : _pHash(h), _password(password) {
 
 	(void)_pHash;
+	/* set default value */
+	_port = port;
 	_numClient = 0;
-	/* create a socket (IPV4, TCP) */
-	this->_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
-	if (-1 == this->_fd)
-		throw Server::serverError((char *)"failed to create a socket");
-
-	/* remove a binding error (bind even if the port is already use) */
-	int	opt = 1;
-	if (setsockopt(this->_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int)) < 0)
-		throw Server::serverError((char *)"setsockopt(SO_REUSEADDR) failed");
-
-	/* binding to the port */
-	this->_sockAddr.sin_family = AF_INET;
-	this->_sockAddr.sin_addr.s_addr = htonl(INADDR_ANY); // use my IP address
-	this->_sockAddr.sin_port = htons(port); // htons convert number to network byte order
-
-	if (bind(this->_fd, (struct sockaddr *)&this->_sockAddr, sizeof(sockaddr)) < 0)
-		throw Server::serverError((char *)"failed during binding");
-
-	if (listen(this->_fd, MAX_WAIT) < 0)
-		throw Server::serverError((char *)"failed to listen on socket");
-
-	std::cout << "listen on port " << port << std::endl;
+	_maxWait = 10;
+	_maxClts = 5;
+	_maxChannel = 3;
 }
 
 Server::~Server(void) {
@@ -48,7 +29,51 @@ Server::~Server(void) {
 	std::cout << "Server closed" << std::endl;
 }
 
-/* ----------------------------------- functions ----------------------------------- */
+/////////////////////////////////////////////////////////////
+
+void	Server::init(void) {
+
+	/* create a socket (IPV4, TCP) */
+	this->_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+	if (-1 == this->_fd)
+		throw Server::serverError((char *)"failed to create a socket");
+
+	/* remove a binding error (bind even if the port is already use) */
+	int	opt = 1;
+	if (setsockopt(this->_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int)) < 0)
+		throw Server::serverError((char *)"setsockopt(SO_REUSEADDR) failed");
+
+	/* binding to the port */
+	this->_sockAddr.sin_family = AF_INET;
+	this->_sockAddr.sin_addr.s_addr = htonl(INADDR_ANY); // use my IP address
+	this->_sockAddr.sin_port = htons(_port); // htons convert number to network byte order
+
+	if (bind(this->_fd, (struct sockaddr *)&this->_sockAddr, sizeof(sockaddr)) < 0)
+		throw Server::serverError((char *)"failed during binding");
+
+	if (listen(this->_fd, _maxWait) < 0)
+		throw Server::serverError((char *)"failed to listen on socket");
+
+	std::cout << "listen on port " << _port << std::endl;
+}
+
+void	Server::getConfig(const std::string &filename) {
+
+	JSON::Object	*json = JSON::parseFile(filename);
+	JSON::Atype		*server = json->get("server");
+
+	if (!server->isNull()) {
+
+		if (!server->get("maxWait")->isNull())
+			_maxWait = server->get("maxWait")->toNum();
+		if (!server->get("maxClient")->isNull())
+			_maxClts = server->get("maxClient")->toNum();
+		if (!server->get("maxChannels")->isNull())
+			_maxChannel = server->get("maxChannels")->toNum();
+	}
+
+	delete json;
+}
 
 void	Server::run(void) {
 
@@ -81,7 +106,7 @@ void	Server::run(void) {
 
 		/* incoming connection */
 		if (FD_ISSET(this->_fd, &this->_fds.readfds))
-			if (this->_numClient < MAX_CLIENT)
+			if (this->_numClient < _maxClts)
 				this->addClient();
 
 		/* I/O (input/output) operation from client */
@@ -99,6 +124,8 @@ void	Server::run(void) {
 		}
 	}
 }
+
+/////////////////////////////////////////////////////////////
 
 void	Server::sendToClient(int sd) {
 
@@ -140,7 +167,6 @@ bool	Server::readFromClient(int sd) {
 
 void	Server::addClient(void) {
 
-
 	/* accept the client */
 	socklen_t	addr_len = sizeof(_sockAddr);
 	int	new_socket = accept(_fd, (struct sockaddr *)&_sockAddr, &addr_len);
@@ -153,3 +179,4 @@ void	Server::addClient(void) {
 	this->_clients[new_socket] = new Client(new_socket);
 	_numClient++;
 }
+

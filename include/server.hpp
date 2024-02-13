@@ -18,9 +18,13 @@ class Server
 		const int				_pHash;		/* sha256 = 0 / md5 = 1 */
 		const std::string		_password;	/* password of the server */
 
-		int						_numClient;
+		int						_numClient;	/* Actual number of client */
 		int						_port;
 		int						_fd;
+
+		int						_maxWait;
+		int						_maxClts;		/* max number of clients */
+		int						_maxChannel;	/* max number of channels */
 
 		struct sockaddr_in		_sockAddr;
 		std::map<int, Client *>	_clients;
@@ -36,6 +40,8 @@ class Server
 		const std::string &getPassword( void ) const;
 		const std::map<int, Client *> &getClients( void ) const;
 
+		void	init( void );
+		void	getConfig( const std::string & );
 		void	run( void );
 
 		class	serverError : public std::exception {

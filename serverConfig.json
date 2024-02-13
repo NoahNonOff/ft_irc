@@ -1,0 +1,9 @@
+{
+	"server" : {
+		"servername" : "jupiter",
+		"version" : "v1.0",
+		"maxWait" : 7,
+		"maxClient" : 15,
+		"maxChannels" : 5
+	}
+}
