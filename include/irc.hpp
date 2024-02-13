@@ -32,10 +32,13 @@
 
 /* ["https://www.beyondtrust.com/docs/privilege-management/unix-linux/admin/settings/port-usage.htm"] */
 
-#define BUFFER_SIZE 10000
+#define BUFFER_SIZE 513 // 510 + 2 + 1 (max message size + CR-LF pair + '\0')
 #define to_str( s ) # s
 
-/* -------------------- utils --------------------- */
+/* connection to the server via IRSSI "/connect -4 127.0.0.1 4434" */
+
+//////////////////////////////////////////////////////
+
 int							stoi( std::string const & );
 std::string					mtos( char * );
 std::vector<std::string>	splitCmds( std::string const );

@@ -22,7 +22,7 @@ class Server
 		int						_port;
 		int						_fd;
 
-		int						_maxWait;
+		int						_maxWait;		/* max pending connections */
 		int						_maxClts;		/* max number of clients */
 		int						_maxChannel;	/* max number of channels */
 

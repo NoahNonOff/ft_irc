@@ -6,68 +6,37 @@ class Server;
 
 class Client
 {
+	public:
+		typedef std::vector<std::string>	arg_array; /* array of arguments */
+
 	private:
-		int const 					_fd;
+		const int 		_fd;
 
-		std::string					_username; /* whatever you want */
-		std::string					_nickname; /* unique across the server */
+		std::string		_username;	/* whatever you want */
+		std::string		_nickname;	/* unique across the server */
 
-		bool						_validated; /* does the client enter the password */
-		short						_validateTry; /* remainning tries */
+		bool			_validated;	/* Is the client authorized ? */
 
-		bool						_is_msg;
-		std::string					_msg_to_send;
-
-		// Channel						*_channel; /* actual channel */
-		bool						_channelAccess;
-		std::vector<std::string>	_invitation;
+		std::string		_msg;		/* message to send */
 
 	public:
-		Client( int );
-		~Client();
-
-		int const &getFd( void ) const;
-		// Channel *getChannel( void ) const;
-		std::string const &getUsername( void ) const;
-		std::string const &getNickname( void ) const;
-		std::string const &getMsg( void ) const;
-		bool const &getValidation( void ) const;
-		bool const &getWritting( void ) const;
-
-		void	setWritting( bool );
-		void	setValidation( bool );
-		// void	setChannel( Channel * );
-		void	setMsg( std::string const & );
-		void	addMsg( std::string const & );
-		void	setMp(std::string const &msg, std::string const &src);
+		Client( const int );
+		~Client( void );
 
 		bool	treatRequest( std::string const &, Server * );
-		// void	accessToChannel( std::string const & );
-		// bool	secure_connection( std::string const &, std::string const & );
+
+		const int 			&getFd( void ) const;
+		const std::string	&getUsername( void ) const;
+		const std::string	&getNickname( void ) const;
+		const std::string	&getMsg( void ) const;
+
+		bool	hasMsg( void );
+		void	setMsg( const std::string & );
+
+
+	private:
 		bool	executeCommand( std::string const &, Server * );
-		// void	launchMessage(std::string const &request);
-		// void	quitChannel( void );
 
-		/* Commands functions */
-		void capCMD( std::vector<std::string> );
-		void pingCMD( std::vector<std::string> );
-		// void	pingCMD( void );
-		// void	userCMD( void );
-		// void	usersCMD( void );
-		// void	helpCMD( void );
-		// void	partCMD( void );
-		// void	listCMD( Server * );
-		// void	nameCMD( std::vector<std::string> );
-		// void	kickCMD( std::vector<std::string> );
-		// void	modeCMD( std::vector<std::string> );
-		// void	topicCMD( std::vector<std::string> );
-		// void	nickCMD( std::vector<std::string>, Server * );
-		// void	chatCMD( std::vector<std::string>, Server * );
-		// void	joinCMD( std::vector<std::string>, Server * );
-		// void	inviteCMD( std::vector<std::string>, Server * );
-
-		// void	createChannel( std::string const &, Server * );
-		// void	joinChannel( Channel * );
-		// bool	isInvite( std::string const & );
-		// void	invite( std::string const & );
+		void 	capCMD( arg_array );
+		void 	pingCMD( arg_array );
 };

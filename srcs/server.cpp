@@ -93,7 +93,7 @@ void	Server::run(void) {
 			int	sd = it->second->getFd();
 			if (sd > 0) {
 				FD_SET(sd, &this->_fds.readfds);
-				if (it->second->getWritting())
+				if (it->second->hasMsg())
 					FD_SET(sd, &this->_fds.writefds);
 			}
 			if (sd > max_sd)
@@ -118,7 +118,7 @@ void	Server::run(void) {
 				if (!this->readFromClient(sd))
 					break ;
 
-			if (it->second->getWritting())
+			if (it->second->hasMsg())
 				if (FD_ISSET(sd, &this->_fds.writefds))
 					this->sendToClient(sd);
 		}
@@ -132,7 +132,6 @@ void	Server::sendToClient(int sd) {
 	std::string	to_send = _clients[sd]->getMsg();
 
 	send(sd, to_send.c_str(), to_send.size(), 0);
-	_clients[sd]->setWritting(false);
 	_clients[sd]->setMsg("");
 }
 
@@ -147,15 +146,13 @@ bool	Server::removeClient(int sd) {
 bool	Server::readFromClient(int sd) {
 
 	ssize_t	b_read = -1;
-	char	buff[BUFFER_SIZE] = {0};
-	std::string	user = _clients.find(sd)->second->getUsername();
+	char	buff[BUFFER_SIZE] = { 0 };
 
 	b_read = recv(sd, buff, BUFFER_SIZE, 0);
 
-	/* destroy the client */
-	if (b_read < 1)
-		return this->removeClient(sd);
-	else {
+	if (b_read < 1) {
+		return this->removeClient(sd);		/* destroy the client */
+	} else {
 		std::string	msg = mtos(buff);
 		std::cout << "<" << msg << ">" << std::endl;
 
