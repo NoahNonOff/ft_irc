@@ -114,7 +114,7 @@ int	main(int ac, char *av[])
 	std::signal(SIGINT, &endProg); /* initialize the signal handler to close the server */
 
 	try {
-		Server_ptr = new Server(v.port, v.password, v.hash);
+		Server_ptr = new Server(v.port, (v.hash ? hash::md5(v.password) : hash::sha256(v.password)), v.hash);
 		if (!v.configFile.empty())
 			Server_ptr->getConfig(v.configFile);	/* get the config from JSON file */
 		memset(&v, 0, sizeof(v));					/* Zeroize sensitive infos */

@@ -2,6 +2,11 @@
 
 /* ["https://www.alien.net.au/irc/irc2numerics.html"] */
 
+// to do ->
+// 		sendError()
+//		sendReply()
+//		basics functions (NICK / USER / PASS)
+
 #define ERR_NOSUCHNICK			401
 #define ERR_NOSUCHSERVER		402
 #define ERR_NOSUCHCHANNEL		403
