@@ -3,12 +3,10 @@
 #include "irc.hpp"
 
 class Server;
+class Request;
 
 class Client
 {
-	public:
-		typedef std::vector<std::string>	arg_array; /* array of arguments */
-
 	private:
 		const int 		_fd;
 
@@ -23,7 +21,7 @@ class Client
 		Client( const int );
 		~Client( void );
 
-		bool	treatRequest( std::string const &, Server * );
+		void	treatRequest( std::string const &, Server *, bool & );
 
 		const int 			&getFd( void ) const;
 		const std::string	&getUsername( void ) const;
@@ -35,8 +33,12 @@ class Client
 
 
 	private:
-		bool	executeCommand( std::string const &, Server * );
 
-		void 	capCMD( arg_array );
-		void 	pingCMD( arg_array );
+		void 	capCMD( void );
+		void	nickCMD( Request );
+		void	userCMD( Request );
+		void	passCMD( Request );
+
+		void 	pingCMD( Request );
+		void	quitCMD( Request, bool & );
 };

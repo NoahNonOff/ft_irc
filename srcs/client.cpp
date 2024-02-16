@@ -24,40 +24,67 @@ Client::~Client(void) {
 
 /////////////////////////////////////////////////////////////
 
-bool	Client::treatRequest(std::string const &request, Server *server) {
-	
-	return this->executeCommand(request, server);
-}
+void	Client::treatRequest(std::string const &request, Server *server, bool &quit) {
 
-bool	Client::executeCommand(std::string const &command, Server *server) {
+	Request	rqst(request);
 
-	arg_array	cmds = splitCmds(command);
+	if (rqst.empty())
+		return ;
 
 	(void)server;
-	if (cmds.empty())
-		return true;
+	if (rqst.is("CAP"))
+		capCMD();
+	else if (rqst.is("NICK"))
+		nickCMD(rqst);
+	else if (rqst.is("USER"))
+		userCMD(rqst);
+	else if (rqst.is("PASS"))
+		passCMD(rqst);
+	else if (rqst.is("PING"))
+		pingCMD(rqst);
+	else if (rqst.is("QUIT"))
+		quitCMD(rqst, quit);
 
-	if (!cmds[0].compare("CAP"))
-		this->capCMD(cmds);
-	else if (!cmds[0].compare("PING"))
-		this->pingCMD(cmds);
-	else if (!cmds[0].compare("QUIT"))
-		return false;
-	return true;
+	if (!_validated) {
+		// send error -> ERR_NOTREGISTERED (451)
+		return ;
+	}
+
+	// if (...) {
+	// 	<command>
+	// } else
+	// 	send error -> ERR_UNKNOWNCOMMAND (421)
 }
 
 /////////////////////////////////////////////////////////////
 
-void	Client::capCMD(arg_array cmds) {
+void	Client::capCMD(void) { _msg += "CAP * LS :\r\n"; }
 
-	(void)cmds;
-	std::cout << "cap cmd" << std::endl;
-	_msg += "001 user\r\n";
+void	Client::nickCMD(Request rqst) {
+
+	(void)rqst;
 }
 
-void	Client::pingCMD(arg_array cmds) {
+void	Client::userCMD(Request rqst) {
 
-	(void)cmds;
-	std::cout << "ping cmd" << std::endl;
-	_msg += "pong\r\n";
+	(void)rqst;
+}
+
+void	Client::passCMD(Request rqst) {
+
+	(void)rqst;
+}
+
+void	Client::pingCMD(Request rqst) {
+
+	// if (rqst.size() < 2)
+	// 	//  send error -> ERR_NEEDMOREPARAMS (461)
+	// else
+		_msg += "PONG " + rqst[1] + "\r\n";
+}
+
+void	Client::quitCMD(Request rqst, bool &quit) {
+
+	(void)rqst;
+	quit = false;
 }

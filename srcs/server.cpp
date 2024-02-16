@@ -146,6 +146,7 @@ bool	Server::removeClient(int sd) {
 bool	Server::readFromClient(int sd) {
 
 	ssize_t	b_read = -1;
+	bool	quit = false;
 	char	buff[BUFFER_SIZE] = { 0 };
 
 	b_read = recv(sd, buff, BUFFER_SIZE, 0);
@@ -156,7 +157,8 @@ bool	Server::readFromClient(int sd) {
 		std::string	msg = mtos(buff);
 		std::cout << "<" << msg << ">" << std::endl;
 
-		if (!_clients[sd]->treatRequest(msg, this))
+		_clients[sd]->treatRequest(msg, this, quit);
+		if (!quit)
 			return this->removeClient(sd);
 	}
 	return true;

@@ -15,10 +15,10 @@ class Server
 		typedef std::map<int, Client *>::iterator	clt_iterator;
 
 	private:
-		const int				_pHash;		/* sha256 = 0 / md5 = 1 */
-		const std::string		_password;	/* password of the server */
+		const int				_pHash;			/* sha256 = 0 / md5 = 1 */
+		const std::string		_password;		/* password of the server */
 
-		int						_numClient;	/* Actual number of client */
+		int						_numClient;		/* Actual number of client */
 		int						_port;
 		int						_fd;
 
