@@ -1,19 +1,24 @@
 #include "server.hpp"
 
-int const						&Server::getFd( void ) const { return _fd; }
-int const						&Server::getPort( void ) const { return _port; }
-std::string const				&Server::getPassword(void) const { return _password; }
-std::map<int, Client *> const	&Server::getClients( void ) const { return _clients; }
+const int						&Server::getFd( void ) const { return _fd; }
+const int						&Server::getPort( void ) const { return _port; }
+const std::map<int, Client *>	&Server::getClients( void ) const { return _clients; }
+
+bool	Server::isPassword(const std::string &key) const {
+
+	return (_pHash ? !hash::md5(key).compare(_password) : !hash::sha256(key).compare(_password));
+}
 
 Server::Server(int port, std::string const &password, int h) : _pHash(h), _password(password) {
 
-	(void)_pHash;
 	/* set default value */
 	_port = port;
 	_numClient = 0;
 	_maxWait = 10;
 	_maxClts = 5;
 	_maxChannel = 3;
+	_serverInfos.name = "IRC_default";
+	_serverInfos.version = "~";
 }
 
 Server::~Server(void) {
@@ -70,6 +75,10 @@ void	Server::getConfig(const std::string &filename) {
 			_maxClts = server->get("maxClient")->toNum();
 		if (!server->get("maxChannels")->isNull())
 			_maxChannel = server->get("maxChannels")->toNum();
+		if (!server->get("servername")->isNull())
+			_serverInfos.name = server->get("servername")->toString();
+		if (!server->get("version")->isNull())
+			_serverInfos.version = server->get("version")->toString();
 	}
 
 	delete json;
@@ -154,6 +163,10 @@ bool	Server::readFromClient(int sd) {
 	if (b_read < 1) {
 		return this->removeClient(sd);		/* destroy the client */
 	} else {
+
+		/* if the message is not terminated by "\r\n", ignore it */
+		if (b_read > 2 && !(buff[b_read - 1] == '\n' && buff[b_read - 2] == '\r'))
+			return true;
 		std::string	msg = mtos(buff);
 		std::cout << "<" << msg << ">" << std::endl;
 
@@ -175,7 +188,20 @@ void	Server::addClient(void) {
 
 	/* add the new socket to the socket_set */
 	std::cout << "a new user (" << new_socket << ") is now connected to the server" << std::endl;
-	this->_clients[new_socket] = new Client(new_socket);
+	this->_clients[new_socket] = new Client(new_socket, _serverInfos);
 	_numClient++;
 }
 
+bool	Server::validNick(const std::string &nick, bool &valid) const {
+
+	valid = false;
+	for (size_t i = 0; i < nick.size(); i++)
+		if (!isalnum(nick[i]) && nick[i] != '{' && nick[i] != '}' && nick[i] != '[' &&
+			nick[i] != ']' && nick[i] != '\\' && nick[i] != '|')
+			return false;
+	valid = true;
+	for (const_clt_iterator it = _clients.begin(); it != _clients.end(); it++)
+		if (!it->second->getNickname().compare(nick))
+			return false;
+	return true;
+}

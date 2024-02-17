@@ -1,6 +1,6 @@
 {
 	"server" : {
-		"servername" : "jupiter",
+		"servername" : "jupiter.fr",
 		"version" : "v1.0",
 		"maxWait" : 7,
 		"maxClient" : 15,

@@ -1,4 +1,4 @@
-#include "irc.hpp"
+#include "client.hpp"
 
 int const			&Client::getFd(void) const { return _fd; }
 std::string const	&Client::getUsername(void) const { return _username; }
@@ -8,11 +8,11 @@ std::string const	&Client::getMsg(void) const { return _msg; }
 bool	Client::hasMsg(void) { return !(_msg.empty()); }
 void	Client::setMsg(const std::string &str) { _msg = str; }
 
-Client::Client(const int clt_fd) : _fd(clt_fd) {
+Client::Client(const int clt_fd, const t_serverInfo &inf) : _fd(clt_fd), _serverInfo(inf) {
 
 	_nickname = "";
 	_username = "";
-	_validated = false;
+	_registration = 0b00000000;
 	_msg = "";
 }
 
@@ -26,65 +26,87 @@ Client::~Client(void) {
 
 void	Client::treatRequest(std::string const &request, Server *server, bool &quit) {
 
-	Request	rqst(request);
+	Request			rqst(request);
 
 	if (rqst.empty())
 		return ;
 
-	(void)server;
 	if (rqst.is("CAP"))
 		capCMD();
-	else if (rqst.is("NICK"))
-		nickCMD(rqst);
 	else if (rqst.is("USER"))
 		userCMD(rqst);
 	else if (rqst.is("PASS"))
-		passCMD(rqst);
+		passCMD(rqst, server);
+	else if (rqst.is("NICK"))
+		nickCMD(rqst, server);
 	else if (rqst.is("PING"))
 		pingCMD(rqst);
 	else if (rqst.is("QUIT"))
 		quitCMD(rqst, quit);
-
-	if (!_validated) {
-		// send error -> ERR_NOTREGISTERED (451)
-		return ;
-	}
-
-	// if (...) {
-	// 	<command>
-	// } else
-	// 	send error -> ERR_UNKNOWNCOMMAND (421)
+	else if (!validated(_registration))
+		err(ERR_NOTREGISTERED);
+	else
+		err(ERR_UNKNOWNCOMMAND, rqst.getCommand().c_str());
 }
 
 /////////////////////////////////////////////////////////////
 
-void	Client::capCMD(void) { _msg += "CAP * LS :\r\n"; }
+void	Client::err(const int err, ...) {
 
-void	Client::nickCMD(Request rqst) {
+	va_list				args;
+	std::stringstream	ss;
+	ss << std::setw(3) << std::setfill('0') << err;
+	va_start(args, err);
+	_msg = ":" + _serverInfo.name + " " + ss.str() + _nickname + " ";
 
-	(void)rqst;
+	switch (err) {
+		case ERR_NEEDMOREPARAMS :
+			_msg += std::string(va_arg(args, char *)) + " :Not enough parameters";
+			break ;
+		case ERR_NONICKNAMEGIVEN :
+			_msg += ":No nickname given";
+			break ;
+		case ERR_ERRONEUSNICKNAME :
+			_msg += std::string(va_arg(args, char *)) + " :Erroneus nickname";
+			break ;
+		case ERR_NICKNAMEINUSE :
+			_msg += std::string(va_arg(args, char *)) + " :Nickname is already in use";
+			break ;
+		case ERR_NOTREGISTERED :
+			_msg += ":You have not registered";
+			break ;
+		case ERR_UNKNOWNCOMMAND :
+			_msg += std::string(va_arg(args, char *)) + " :Unknown command";
+			break ;
+		case ERR_ALREADYREGISTERED :
+			_msg += ":You may not reregister";
+			break ;
+		case ERR_PASSWDMISMATCH :
+			_msg += ":Password incorrect";
+			break ;
+		default:
+			_msg += "Unknown Error";
+	}
+	va_end(args);
+	_msg += "\r\n";
 }
 
-void	Client::userCMD(Request rqst) {
+// RPL_ISUPPORT
+void	Client::rpl(const int rpl, ...) {
 
-	(void)rqst;
-}
+	va_list				args;
+	std::stringstream	ss;
+	ss << std::setw(3) << std::setfill('0') << rpl;
+	va_start(args, rpl);
+	_msg = ":" + _serverInfo.name + " " + ss.str() + _nickname + " ";
 
-void	Client::passCMD(Request rqst) {
-
-	(void)rqst;
-}
-
-void	Client::pingCMD(Request rqst) {
-
-	// if (rqst.size() < 2)
-	// 	//  send error -> ERR_NEEDMOREPARAMS (461)
-	// else
-		_msg += "PONG " + rqst[1] + "\r\n";
-}
-
-void	Client::quitCMD(Request rqst, bool &quit) {
-
-	(void)rqst;
-	quit = false;
+	switch (rpl) {
+		case RPL_YOURHOST :
+			_msg += ":Your host is " + _serverInfo.name + ", running version " + _serverInfo.version;
+			break ;
+		default:
+			_msg += "Unknown Reply";
+	}
+	va_end(args);
+	_msg += "\r\n";
 }

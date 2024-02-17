@@ -1,6 +1,7 @@
 SRC =	srcs/main.cpp						\
 		srcs/utils.cpp						\
 		srcs/request.cpp					\
+		srcs/commands.cpp					\
 		srcs/client.cpp						\
 		srcs/server.cpp						\
 											\

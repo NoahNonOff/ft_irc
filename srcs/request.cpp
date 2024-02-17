@@ -14,15 +14,22 @@ Request::Request(const std::string &raw) {
 			;;
 
 		if (raw[i] == ':' && _command.empty() && _prefix.empty()) {
-			_prefix = raw.substr(i, end - i);
+			_prefix = raw.substr(i + 1, end - (i + 1)); // + 1 to remove ':'
 		} else {
 
 			if (raw[i] == ':')
-				end = raw.size();
+				end = raw.size(); // source
 			if (_command.empty() && raw[i] != ':')
 				_command = raw.substr(i, end - i);
-			else
-				_arguments.push_back(raw.substr(i, end - i));
+			else {
+				if (raw[i] == '@') // tags
+					_tags.push_back(raw.substr(i + 1, end - (i + 1)));
+				else {
+					if (raw[i] == ':')
+						i++;
+					_arguments.push_back(raw.substr(i, end - i));
+				}
+			}
 		}
 		if (!(end < (int)raw.size()))
 			break ;

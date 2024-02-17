@@ -12,11 +12,13 @@ class Client;
 class Server
 {
 	public:
-		typedef std::map<int, Client *>::iterator	clt_iterator;
+		typedef std::map<int, Client *>::iterator		clt_iterator;
+		typedef std::map<int, Client *>::const_iterator	const_clt_iterator;
 
 	private:
 		const int				_pHash;			/* sha256 = 0 / md5 = 1 */
 		const std::string		_password;		/* password of the server */
+		t_serverInfo			_serverInfos;	/* the info about the server */
 
 		int						_numClient;		/* Actual number of client */
 		int						_port;
@@ -37,8 +39,10 @@ class Server
 
 		const int &getFd( void ) const;
 		const int &getPort( void ) const;
-		const std::string &getPassword( void ) const;
 		const std::map<int, Client *> &getClients( void ) const;
+
+		bool	isPassword( const std::string & ) const;
+		bool	validNick( const std::string &, bool & ) const;
 
 		void	init( void );
 		void	getConfig( const std::string & );

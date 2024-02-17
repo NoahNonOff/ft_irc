@@ -1,5 +1,27 @@
 #pragma once
 
+// TO-DO (02/18/2024)
+//
+//		-> fix bugs when connecting
+//		-> test the request parser
+//		-> create the class Channel
+//
+
+//////////////// Socket ///////////////
+/* [ "https://www.geeksforgeeks.org/socket-programming-in-cc-handling-multiple-clients-on-server-without-multi-threading/" ] */
+/* [ "http://vidalc.chez.com/lf/socket.html#lowlevel" ] */
+
+///////////////// RFC /////////////////
+/* ["https://modern.ircdocs.horse/"] */
+/* [ "https://www.rfc-editor.org/rfc/rfc2812" ] */
+
+///////////////// Port ////////////////
+/* ["https://www.beyondtrust.com/docs/privilege-management/unix-linux/admin/settings/port-usage.htm"] */
+
+/* connection to the server via IRSSI "/connect -4 127.0.0.1 4434" */
+
+//////////////////////////////////////////////////////
+
 #include <iostream>
 #include <string>
 #include <exception>
@@ -18,6 +40,35 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
+typedef struct s_serverInfo {
+	std::string	name;
+	std::string	version;
+}	t_serverInfo;
+
+#define BUFFER_SIZE 513 // 510 + 2 + 1 (max message size + CR-LF pair + '\0')
+#define to_str( s ) # s
+
+int							stoi( std::string const & );
+std::string					mtos( char * );
+std::string					toLower( std::string const & );
+
+//////////////////////////////////////////////////////
+
+/* ["https://www.alien.net.au/irc/irc2numerics.html"] */
+
+#define RPL_YOURHOST			002
+
+#define ERR_UNKNOWNCOMMAND		421
+#define ERR_NONICKNAMEGIVEN		431
+#define ERR_ERRONEUSNICKNAME	432
+#define ERR_NICKNAMEINUSE		433
+#define ERR_NOTREGISTERED		451
+#define ERR_NEEDMOREPARAMS		461
+#define ERR_ALREADYREGISTERED	462
+#define ERR_PASSWDMISMATCH		464
+
+//////////////////////////////////////////////////////
+
 #include "Parser.hpp"
 #include "Sha256.hpp"
 #include "Md5.hpp"
@@ -25,27 +76,3 @@
 #include "request.hpp"
 #include "server.hpp"
 #include "client.hpp"
-
-//////////////// Socket ///////////////
-/* [ "https://www.geeksforgeeks.org/socket-programming-in-cc-handling-multiple-clients-on-server-without-multi-threading/" ] */
-/* [ "http://vidalc.chez.com/lf/socket.html#lowlevel" ] */
-
-///////////////// RFC /////////////////
-/* ["https://modern.ircdocs.horse/"] */
-/* [ "https://www.rfc-editor.org/rfc/rfc2812" ] */
-
-///////////////// Port ////////////////
-/* ["https://www.beyondtrust.com/docs/privilege-management/unix-linux/admin/settings/port-usage.htm"] */
-
-//////////////////////////////////////////////////////
-
-#define BUFFER_SIZE 513 // 510 + 2 + 1 (max message size + CR-LF pair + '\0')
-#define to_str( s ) # s
-
-/* connection to the server via IRSSI "/connect -4 127.0.0.1 4434" */
-
-int							stoi( std::string const & );
-std::string					mtos( char * );
-std::vector<std::string>	splitCmds( std::string const );
-std::string					toLower(std::string const &str);
-
