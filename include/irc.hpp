@@ -3,7 +3,7 @@
 // TO-DO (02/18/2024)
 //
 //		-> fix bugs when connecting
-//		-> test the request parser
+//	Ok	-> test the request parser (https://modern.ircdocs.horse/#parameters)
 //		-> create the class Channel
 //
 
@@ -45,7 +45,7 @@ typedef struct s_serverInfo {
 	std::string	version;
 }	t_serverInfo;
 
-#define BUFFER_SIZE 513 // 510 + 2 + 1 (max message size + CR-LF pair + '\0')
+#define BUFFER_SIZE 513 // 510 + 2 + 1 (max message size + CR-LF pair + '\0') + 4096 for tags
 #define to_str( s ) # s
 
 int							stoi( std::string const & );

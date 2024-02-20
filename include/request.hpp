@@ -8,7 +8,6 @@ class Request
 		std::string					_prefix;	/* comment at the begining */
 		std::string					_command;	/* the command */
 		std::vector<std::string>	_arguments;	/* all the arguments after the command */
-		std::vector<std::string>	_tags;		/* tags received with the command */
 
 	public:
 		Request( void );

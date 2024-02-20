@@ -6,7 +6,7 @@ Request::Request(const std::string &raw) {
 
 	int	i = 0, end = 0;
 	if (raw.empty())
-		return ;
+		return 0;
 	for (; i < (int)raw.size() && raw[i] == ' '; i++)
 		;;
 	while (1) {
@@ -18,17 +18,13 @@ Request::Request(const std::string &raw) {
 		} else {
 
 			if (raw[i] == ':')
-				end = raw.size(); // source
+				end = raw.size();
 			if (_command.empty() && raw[i] != ':')
 				_command = raw.substr(i, end - i);
 			else {
-				if (raw[i] == '@') // tags
-					_tags.push_back(raw.substr(i + 1, end - (i + 1)));
-				else {
-					if (raw[i] == ':')
-						i++;
-					_arguments.push_back(raw.substr(i, end - i));
-				}
+				if (raw[i] == ':')
+					i++;
+				_arguments.push_back(raw.substr(i, end - i));
 			}
 		}
 		if (!(end < (int)raw.size()))
@@ -37,6 +33,11 @@ Request::Request(const std::string &raw) {
 			;;
 		if (!(i < (int)raw.size()))
 			break ;
+	}
+
+	if (_arguments.size()) {
+		std::string &last = _arguments[_arguments.size() - 1];
+		last.erase(last.find_last_not_of(" ") + 1);
 	}
 }
 
