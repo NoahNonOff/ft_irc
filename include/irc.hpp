@@ -1,9 +1,11 @@
 #pragma once
 
-// TO-DO (02/18/2024)
+// TO-DO (02/21/2024)
 //
-//		-> fix bugs when connecting
-//	Ok	-> test the request parser (https://modern.ircdocs.horse/#parameters)
+//		-> Finish the registration
+//			-> read the github (registration command)
+//			-> fix NCK/USER/PASS/CAP functions
+//
 //		-> create the class Channel
 //
 
@@ -30,6 +32,7 @@
 #include <cerrno>			/* errno */
 #include <fstream>
 #include <vector>
+#include <stack>
 #include <map>
 
 #include <stdlib.h>

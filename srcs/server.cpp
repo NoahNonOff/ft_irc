@@ -140,8 +140,8 @@ void	Server::sendToClient(int sd) {
 
 	std::string	to_send = _clients[sd]->getMsg();
 
+	std::cout << "send: \"" << mtos((char *)to_send.c_str()) << "\"" << std::endl;
 	send(sd, to_send.c_str(), to_send.size(), 0);
-	_clients[sd]->setMsg("");
 }
 
 bool	Server::removeClient(int sd) {
@@ -171,7 +171,7 @@ bool	Server::readFromClient(int sd) {
 		std::cout << "<" << msg << ">" << std::endl;
 
 		_clients[sd]->treatRequest(msg, this, quit);
-		if (!quit)
+		if (quit)
 			return this->removeClient(sd);
 	}
 	return true;

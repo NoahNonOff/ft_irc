@@ -6,7 +6,7 @@ Request::Request(const std::string &raw) {
 
 	int	i = 0, end = 0;
 	if (raw.empty())
-		return 0;
+		return ;
 	for (; i < (int)raw.size() && raw[i] == ' '; i++)
 		;;
 	while (1) {

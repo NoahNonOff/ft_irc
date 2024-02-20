@@ -1,9 +1,21 @@
 #include "client.hpp"
 
-void	Client::capCMD(void) {
+void	Client::capCMD(Request rqst) {
 
-	_msg = "CAP * LS :\r\n";
-	addFlag(_registration, F_CAP);
+	if (validated(_registration)) {
+		err(ERR_ALREADYREGISTERED);	/* already registered */
+		return ;
+	}
+
+	else if (rqst.size() < 1) {
+		err(ERR_NEEDMOREPARAMS, rqst.getCommand().c_str());
+		return ;
+	}
+
+	if (!rqst[1].compare("END"))
+		addFlag(_registration, F_CAP);
+	else
+		_msg = "CAP * LS :";
 }
 
 void	Client::userCMD(Request rqst) {
@@ -44,7 +56,7 @@ void	Client::nickCMD(Request rqst, Server *server) {
 		return ;
 	}
 	_nickname = rqst[1];
-	_msg = "NICK " + rqst[1] + "\r\n";
+	// _msg = "NICK " + rqst[1];
 	addFlag(_registration, F_NICK);
 }
 
@@ -72,11 +84,11 @@ void	Client::pingCMD(Request rqst) {
 	if (rqst.size() < 2)
 		err(ERR_NEEDMOREPARAMS, rqst.getCommand().c_str());
 	else
-		_msg = "PONG " + rqst[1] + "\r\n";
+		_msg = "PONG " + rqst[1];
 }
 
 void	Client::quitCMD(Request rqst, bool &quit) {
 
 	(void)rqst;
-	quit = false;
+	quit = true;
 }

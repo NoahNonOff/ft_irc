@@ -3,10 +3,19 @@
 int const			&Client::getFd(void) const { return _fd; }
 std::string const	&Client::getUsername(void) const { return _username; }
 std::string const	&Client::getNickname(void) const { return _nickname; }
-std::string const	&Client::getMsg(void) const { return _msg; }
 
-bool	Client::hasMsg(void) { return !(_msg.empty()); }
-void	Client::setMsg(const std::string &str) { _msg = str; }
+std::string const	Client::getMsg(void) {
+
+	std::string	ret = "";
+
+	if (_toSend.size()) {
+		ret = _toSend[0];
+		_toSend.erase(_toSend.begin());
+	}
+	return ret + "\r\n"; // add the CR-LF pair
+}
+
+bool	Client::hasMsg(void) const { return _toSend.size(); }
 
 Client::Client(const int clt_fd, const t_serverInfo &inf) : _fd(clt_fd), _serverInfo(inf) {
 
@@ -32,7 +41,7 @@ void	Client::treatRequest(std::string const &request, Server *server, bool &quit
 		return ;
 
 	if (rqst.is("CAP"))
-		capCMD();
+		capCMD(rqst);
 	else if (rqst.is("USER"))
 		userCMD(rqst);
 	else if (rqst.is("PASS"))
@@ -47,6 +56,11 @@ void	Client::treatRequest(std::string const &request, Server *server, bool &quit
 		err(ERR_NOTREGISTERED);
 	else
 		err(ERR_UNKNOWNCOMMAND, rqst.getCommand().c_str());
+
+	if (!_msg.empty()) {
+		_toSend.push_back(_msg);
+		_msg = "";
+	}
 }
 
 /////////////////////////////////////////////////////////////
@@ -88,7 +102,6 @@ void	Client::err(const int err, ...) {
 			_msg += "Unknown Error";
 	}
 	va_end(args);
-	_msg += "\r\n";
 }
 
 // RPL_ISUPPORT
@@ -108,5 +121,4 @@ void	Client::rpl(const int rpl, ...) {
 			_msg += "Unknown Reply";
 	}
 	va_end(args);
-	_msg += "\r\n";
 }

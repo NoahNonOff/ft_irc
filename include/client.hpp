@@ -19,14 +19,15 @@ class Client
 {
 	private:
 		const int 			_fd;
-		const t_serverInfo	&_serverInfo;	/* All the needed info about the server */
+		const t_serverInfo	&_serverInfo;		/* All the needed info about the server */
 
-		std::string			_username;		/* whatever you want */
-		std::string			_nickname;		/* unique across the server */
+		std::string			_username;			/* whatever you want */
+		std::string			_nickname;			/* unique across the server */
 
-		uint8_t				_registration;	/* Is the client authorized ? */
+		uint8_t				_registration;		/* Is the client authorized ? */
 
-		std::string			_msg;			/* message to send */
+		std::string					_msg;		/* message to send */
+		std::vector<std::string>	_toSend;
 
 	public:
 		Client( const int, const t_serverInfo & );
@@ -37,17 +38,16 @@ class Client
 		const int 			&getFd( void ) const;
 		const std::string	&getUsername( void ) const;
 		const std::string	&getNickname( void ) const;
-		const std::string	&getMsg( void ) const;
+		const std::string	getMsg( void );
 
-		bool	hasMsg( void );
-		void	setMsg( const std::string & );
+		bool	hasMsg( void ) const;
 
 		void	err( const int , ... );
 		void	rpl( const int , ... );
 
 	private:
 
-		void 	capCMD( void );
+		void 	capCMD( Request );
 		void	userCMD( Request );
 		void	nickCMD( Request, Server * );
 		void	passCMD( Request, Server * );
